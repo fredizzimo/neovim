@@ -1199,10 +1199,11 @@ function M.show_line_diagnostics(opts, bufnr, line_nr, client_id)
   end
 
   local line_diagnostics = M.get_line_diagnostics(bufnr, line_nr, opts, client_id)
-  if vim.tbl_isempty(line_diagnostics) then return end
+  local num_diagnostics = vim.tbl_count(line_diagnostics)
+  if num_diagnostics == 0 then return end
 
   for i, diagnostic in ipairs(line_diagnostics) do
-    local prefix = string.format("%d. ", i)
+    local prefix = num_diagnostics == 1 and '' or string.format("%d. ", i)
     local hiname = M._get_floating_severity_highlight_name(diagnostic.severity)
     assert(hiname, 'unknown severity: ' .. tostring(diagnostic.severity))
 
@@ -1210,7 +1211,7 @@ function M.show_line_diagnostics(opts, bufnr, line_nr, client_id)
     table.insert(lines, prefix..message_lines[1])
     table.insert(highlights, {#prefix, hiname})
     for j = 2, #message_lines do
-      table.insert(lines, message_lines[j])
+      table.insert(lines, string.rep(' ', #prefix) .. message_lines[j])
       table.insert(highlights, {0, hiname})
     end
   end
