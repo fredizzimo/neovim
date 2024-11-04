@@ -62,6 +62,7 @@
 #include "nvim/os/os_defs.h"
 #include "nvim/path.h"
 #include "nvim/plines.h"
+#include "nvim/popupmenu.h"
 #include "nvim/pos_defs.h"
 #include "nvim/quickfix.h"
 #include "nvim/search.h"
@@ -800,6 +801,11 @@ void ui_ext_win_position(win_T *wp, bool validate)
 {
   wp->w_pos_changed = false;
   if (!wp->w_floating) {
+    if (ui_has(kUIMultigrid)) {
+      // Split windows for example need to have the correct comp_col and comp_row
+      wp->w_grid_alloc.comp_col = wp->w_wincol;
+      wp->w_grid_alloc.comp_row = wp->w_winrow;
+    }
     ui_call_win_pos(wp->w_grid_alloc.handle, wp->handle, wp->w_winrow,
                     wp->w_wincol, wp->w_width, wp->w_height);
     return;
@@ -824,6 +830,7 @@ void ui_ext_win_position(win_T *wp, bool validate)
         int row_off = 0;
         int col_off = 0;
         grid_adjust(&grid, &row_off, &col_off);
+
         row += row_off;
         col += col_off;
         if (c.bufpos.lnum >= 0) {
@@ -846,12 +853,31 @@ void ui_ext_win_position(win_T *wp, bool validate)
     }
     if (ui_has(kUIMultigrid)) {
       String anchor = cstr_as_string(float_anchor_str[c.anchor]);
+      bool east = c.anchor & kFloatAnchorEast;
+      bool south = c.anchor & kFloatAnchorSouth;
+
+      int comp_row = (int)row - (south ? wp->w_height_outer : 0);
+      int comp_col = (int)col - (east ? wp->w_width_outer : 0);
+      int above_ch = wp->w_config.zindex < kZIndexMessages ? (int)p_ch : 0;
+      comp_row += grid->comp_row;
+      comp_col += grid->comp_col;
+      comp_row = MAX(MIN(comp_row, Rows - wp->w_height_outer - above_ch), 0);
+      if (!c.fixed || east) {
+        comp_col = MAX(MIN(comp_col, Columns - wp->w_width_outer), 0);
+      }
+      wp->w_winrow = comp_row;
+      wp->w_wincol = comp_col;
       if (!c.hide) {
+        ui_comp_put_grid(&wp->w_grid_alloc, comp_row, comp_col,
+                         wp->w_height_outer, wp->w_width_outer, true, false);
         ui_call_win_float_pos(wp->w_grid_alloc.handle, wp->handle, anchor,
                               grid->handle, row, col, c.mouse,
-                              wp->w_grid_alloc.zindex);
+                              wp->w_grid_alloc.zindex, wp->w_grid_alloc.comp_index, comp_row,
+                              comp_col);
+        wp->w_grid_alloc.mouse_enabled = wp->w_config.mouse;
       } else {
         ui_call_win_hide(wp->w_grid_alloc.handle);
+        ui_comp_remove_grid(&wp->w_grid_alloc);
       }
     } else {
       bool valid = (wp->w_redr_type == 0);
@@ -2855,7 +2881,7 @@ int win_close(win_T *win, bool free_buf, bool force)
           break;
         }
         if (!wp->w_p_pvw && !bt_quickfix(wp->w_buffer)
-            && !(wp->w_floating && (wp->w_config.hide || !wp->w_config.focusable))) {
+            && !(wp->w_floating && (wp->w_config.hide || !wp->w_config.mouse))) {
           curwin = wp;
           break;
         }
@@ -6811,6 +6837,7 @@ void command_height(void)
     }
 
     msg_row = MAX(msg_row, cmdline_row);
+
     redraw_cmdline = true;
   }
   frame_add_height(frp, (int)(old_p_ch - p_ch));
@@ -7502,7 +7529,8 @@ void win_get_tabwin(handle_T id, int *tabnr, int *winnr)
 void win_ui_flush(bool validate)
 {
   FOR_ALL_TAB_WINDOWS(tp, wp) {
-    if (wp->w_pos_changed && wp->w_grid_alloc.chars != NULL) {
+    // This could check if the position, zindex or comp_index has changed, but for simplicty always update
+    if (wp->w_grid_alloc.chars != NULL) {
       if (tp == curtab) {
         ui_ext_win_position(wp, validate);
       } else {
@@ -7514,6 +7542,7 @@ void win_ui_flush(bool validate)
       ui_ext_win_viewport(wp);
     }
   }
+  pum_ui_flush();
 }
 
 win_T *lastwin_nofloating(void)

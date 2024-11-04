@@ -593,7 +593,8 @@ bool ui_comp_set_screen_valid(bool valid)
   return old_val;
 }
 
-void ui_comp_msg_set_pos(Integer grid, Integer row, Boolean scrolled, String sep_char)
+void ui_comp_msg_set_pos(Integer grid, Integer row, Boolean scrolled, String sep_char,
+                         Integer zindex, Integer compindex)
 {
   msg_grid.comp_row = (int)row;
   if (scrolled && row > 0) {
