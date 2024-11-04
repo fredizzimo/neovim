@@ -221,6 +221,8 @@ function Screen.new(width, height, options, session)
     _height = height or 14,
     _options = options,
     _grids = {},
+    _composed_grids = {},
+    _composed_cursor = {},
     _grid_win_extmarks = {},
     _cursor = {
       grid = 1,
@@ -952,14 +954,137 @@ function Screen:_handle_grid_resize(grid, width, height)
   }
 end
 
-function Screen:_handle_msg_set_pos(grid, row, scrolled, char)
+function Screen:_handle_msg_set_pos(grid, row, scrolled, char, zindex, compindex)
   self.msg_grid = grid
   self.msg_grid_pos = row
   self.msg_scrolled = scrolled
   self.msg_sep_char = char
+  self.msg_zindex = zindex
+  self.msg_compindex = compindex
 end
 
-function Screen:_handle_flush() end
+function Screen:blend(cell, cell_below)
+    local attr = self._attr_table[cell.hl_id]
+    -- TODO: Should probably support non-rgb as well
+    local rgb = attr[1]
+    if rgb.blend and rgb.blend ~= 0 and cell.text ==  ' ' then
+      -- TODO: make the blending dynamic
+      local info = self._hl_info[cell.hl_id]
+      cell = {
+        text = cell_below.text,
+        hl_id = cell.hl_id + 1000,
+      }
+      local new_attr = vim.deepcopy(attr)
+      new_attr[1].blend = nil
+      if rgb.blend == 100 then
+        new_attr[1].foreground = Screen.colors.Black
+        new_attr[1].background = Screen.colors.White
+      else
+        new_attr[1].foreground = Screen.colors.Black
+        new_attr[1].background = Screen.colors.Gray80
+      end
+      self._attr_table[cell.hl_id] = new_attr
+      self._hl_info[cell.hl_id] = info
+      self._new_attrs = true
+    end
+    return cell
+end
+
+function Screen:_handle_flush()
+  local cursor = self._cursor
+  if not self._options.ext_multigrid then
+    local screen_width = self._grids[1].width
+    local screen_height = self._grids[1].height
+    local grid = vim.deepcopy(self._grids[1])
+    for igrid, current_grid in self:sort_grids() do
+      local height = current_grid.height
+      local width = current_grid.width
+      local hidden = igrid > 1 and (self.win_position[igrid] == nil and self.float_pos[igrid] == nil and self.msg_grid ~= igrid) or (self.float_pos[igrid] and self.float_pos[igrid].external)
+      if hidden then
+        goto continue
+      end
+
+      local position = self:get_position(igrid)
+      if igrid == self.msg_grid then
+          height = self._grids[1].height - self.msg_grid_pos
+          if height > 1 and self.msg_scrolled then
+            --print(inspect(self))
+            local group = self.hl_groups['MsgSeparator']
+            local separator = {
+              text = self.msg_sep_char,
+              hl_id = group,
+            }
+            for i = 1, #grid.rows[1] do
+              grid.rows[self.msg_grid_pos][i] = separator
+            end
+          end
+      end
+      if cursor.grid == igrid then
+        self._composed_cursor.row = cursor.row + position.startrow
+        self._composed_cursor.col = cursor.col + position.startcol
+        self._composed_cursor.grid = 1
+      end
+      if self._popupmenu and self._popupmenu.anchor[1] == igrid then
+        self.popupmenu = vim.deepcopy(self._popupmenu)
+        self.popupmenu.anchor = {
+          1,
+          -- TODO: This is wrong, we should need to add startrow and startcol
+          self._popupmenu.anchor[2],
+          self._popupmenu.anchor[3],
+        }
+      end
+      if igrid > 1 then
+        if igrid == self.msg_grid then
+          height = self._grids[1].height - self.msg_grid_pos
+        end
+        local margins = self.win_viewport_margins[igrid]
+        if not margins then
+          margins = {
+            left = 0,
+            right = 0,
+            top = 0,
+            bottom = 0,
+          }
+        end
+        local function get_margin_dest(start, dim, max_dim, margin)
+          local max_win = math.min(start + dim, max_dim)
+          return max_win - margin + 1
+        end
+
+        local function get_dest_and_max(start, i, margin_dest, margin, dim, max_dim)
+          -- marigin_index is greater or equal to 1 for margin cells
+          local margin_index = i - (dim - margin)
+          if margin_index >=1 then
+            local dest = margin_dest + margin_index - 1
+            return dest, max_dim
+          else
+            local dest = start + i
+            local max_dest = margin_dest - 1
+            return dest, max_dest
+          end
+        end
+
+        -- TODO Left and top margins (maybe untested)
+        local bottom_margin_dest = get_margin_dest(position.startrow,  height, screen_height, margins.bottom)
+        local right_margin_dest = get_margin_dest(position.startcol,  width, screen_width, margins.right)
+        for i = 1, height do
+          local dest_row, max_dest_row = get_dest_and_max(position.startrow, i, bottom_margin_dest, margins.bottom, height, screen_height)
+          if dest_row >= 1 and dest_row <= max_dest_row then
+            local content = current_grid.rows[i]
+            for j,v in ipairs(content) do
+              local dest_col, max_dest_col = get_dest_and_max(position.startcol, j, right_margin_dest, margins.right, width, screen_width)
+              if dest_col >= 1 and dest_col <= max_dest_col then
+                grid.rows[dest_row][dest_col] = self:blend(v, grid.rows[dest_row][dest_col])
+              end
+            end
+          end
+        end
+      end
+      ::continue::
+    end
+    self._composed_grids = {grid}
+  end
+end
 
 function Screen:_reset()
   -- TODO: generalize to multigrid later
@@ -967,6 +1092,7 @@ function Screen:_reset()
 
   -- TODO: share with initialization, so it generalizes?
   self.popupmenu = nil
+  self._popupmenu = nil
   self.cmdline = {}
   self.cmdline_block = {}
   self.wildmenu_items = nil
@@ -1224,7 +1350,6 @@ end
 --- @param col integer
 --- @param items integer[][]
 function Screen:_handle_grid_line(grid, row, col, items)
-  assert(self._options.ext_linegrid)
   assert(#items > 0)
   local line = self._grids[grid].rows[row + 1]
   local colpos = col + 1
@@ -1298,14 +1423,16 @@ function Screen:_handle_chdir(path)
 end
 
 function Screen:_handle_popupmenu_show(items, selected, row, col, grid)
-  self.popupmenu = { items = items, pos = selected, anchor = { grid, row, col } }
+  self._popupmenu = { items = items, pos = selected, anchor = { grid, row, col } }
+  self.popupmenu = self._popupmenu
 end
 
 function Screen:_handle_popupmenu_select(selected)
-  self.popupmenu.pos = selected
+  self._popupmenu.pos = selected
 end
 
 function Screen:_handle_popupmenu_hide()
+  self._popupmenu = nil
   self.popupmenu = nil
 end
 
@@ -1422,12 +1549,12 @@ function Screen:_clear_row_section(grid, rownum, startcol, stopcol, invalid)
   end
 end
 
-function Screen:_row_repr(gridnr, rownr, attr_state, cursor)
+function Screen:_row_repr(grid, gridnr, rownr, attr_state, cursor)
   local rv = {}
   local current_attr_id
   local i = 1
   local has_windows = self._options.ext_multigrid and gridnr == 1
-  local row = self._grids[gridnr].rows[rownr]
+  local row = grid.rows[rownr]
   if has_windows and self.msg_grid and self.msg_grid_pos < rownr then
     return '[' .. self.msg_grid .. ':' .. string.rep('-', #row) .. ']'
   end
@@ -1464,7 +1591,7 @@ function Screen:_row_repr(gridnr, rownr, attr_state, cursor)
         table.insert(rv, '{' .. attr_id .. ':')
         current_attr_id = attr_id
       end
-      if not self._busy and cursor and self._cursor.col == i then
+      if not self._busy and cursor and cursor.col == i then
         table.insert(rv, '^')
       end
       table.insert(rv, row[i].text)
@@ -1523,7 +1650,7 @@ function Screen:_extstate_repr(attr_state)
     showcmd = self:_chunks_repr(self.showcmd, attr_state),
     ruler = self:_chunks_repr(self.ruler, attr_state),
     msg_history = msg_history,
-    float_pos = self.float_pos,
+    float_pos = self._options.ext_multigrid and self.float_pos or nil,
     win_viewport = win_viewport,
     win_viewport_margins = win_viewport_margins,
     win_pos = self.win_position,
@@ -1577,6 +1704,61 @@ function Screen:redraw_debug(timeout)
   run_session(self._session, nil, notification_cb, nil, timeout)
 end
 
+
+function Screen:sort_grids()
+  -- collect the keys
+  local keys = {}
+  for k in pairs(self._grids) do
+    table.insert(keys, k)
+  end
+  local f = function(a, b)
+    local compindex = 8
+    local compindex_a  = self.float_pos[a] and self.float_pos[a][compindex] or 0
+    local compindex_b  = self.float_pos[b] and self.float_pos[b][compindex] or 0
+
+    if a == self.msg_grid then
+      compindex_a = self.msg_compindex
+    end
+    if b == self.msg_grid then
+      compindex_b = self.msg_compindex
+    end
+    return compindex_a < compindex_b
+  end
+  table.sort(keys, f)
+
+  -- Return the iterator function.
+  local i = 0
+  return function()
+    i = i + 1
+    if keys[i] then
+      return keys[i], self._grids[keys[i]]
+    end
+  end
+end
+
+function Screen:get_position(igrid)
+  if igrid == self.msg_grid then
+      return  {
+        startrow = self.msg_grid_pos,
+        startcol = 0,
+      }
+  elseif self.float_pos[igrid] then
+    local win, anchor, anchor_grid, anchor_row, anchor_col, mouse_enabled, zindex, compindex, abs_row, abs_col = table.unpack(self.float_pos[igrid])
+    --local anchor_pos = self:get_position(anchor_grid)
+    return {
+      startrow = abs_row,
+      startcol = abs_col
+    }
+  elseif self.win_position[igrid] then
+    return self.win_position[igrid]
+  else
+    return {
+        startrow = 0,
+        startcol = 0,
+    }
+  end
+end
+
 --- @param headers boolean
 --- @param attr_state any
 --- @param preview? boolean
@@ -1584,7 +1766,10 @@ end
 function Screen:render(headers, attr_state, preview)
   headers = headers and (self._options.ext_multigrid or self._options._debug_float)
   local rv = {}
-  for igrid, grid in vim.spairs(self._grids) do
+  local cursor = self._options.ext_multigrid and self._cursor or self._composed_cursor
+  local grids = self._options.ext_multigrid and self._grids or self._composed_grids
+
+  for igrid, grid in vim.spairs(grids) do
     if headers then
       local suffix = ''
       if
@@ -1599,12 +1784,12 @@ function Screen:render(headers, attr_state, preview)
     end
     local height = grid.height
     if igrid == self.msg_grid then
-      height = self._grids[1].height - self.msg_grid_pos
+      height = grids[1].height - self.msg_grid_pos
     end
     for i = 1, height do
-      local cursor = self._cursor.grid == igrid and self._cursor.row == i
+      local current_cursor = (cursor.grid == igrid and cursor.row == i) and cursor or nil
       local prefix = (headers or preview) and '  ' or ''
-      table.insert(rv, prefix .. self:_row_repr(igrid, i, attr_state, cursor) .. '|')
+      table.insert(rv, prefix .. self:_row_repr(grid, igrid, i, attr_state, current_cursor) .. '|')
     end
   end
   return rv
