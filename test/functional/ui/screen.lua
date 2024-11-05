@@ -230,6 +230,7 @@ function Screen.new(width, height, options, session)
       col = 1,
     },
     _busy = false,
+    _next_blend_attr = 1000,
   }, Screen)
 
   local function ui(method, ...)
@@ -964,29 +965,70 @@ function Screen:_handle_msg_set_pos(grid, row, scrolled, char, zindex, compindex
   self.msg_compindex = compindex
 end
 
-function Screen:blend(cell, cell_below)
+
+local function rgb_blend(ratio, rgb1, rgb2)
+  local a = ratio
+  local b = 100 - ratio
+  local r1 = bit.rshift(bit.band(rgb1,  0xFF0000), 16)
+  local g1 = bit.rshift(bit.band(rgb1, 0x00FF00), 8)
+  local b1 = bit.band(rgb1, 0x0000FF)
+  local r2 = bit.rshift(bit.band(rgb2,  0xFF0000), 16)
+  local g2 = bit.rshift(bit.band(rgb2, 0x00FF00), 8)
+  local b2 = bit.band(rgb2, 0x0000FF)
+  local mr = math.floor((a * r1 + b * r2)/100)
+  local mg = math.floor((a * g1 + b * g2)/100)
+  local mb = math.floor((a * b1 + b * b2)/100)
+  return bit.lshift(mr, 16) + bit.lshift(mg, 8) + mb
+end
+
+local function hl_hash(attr)
+  -- TODO: Only rgb for now
+  local items = {}
+  for k, v in pairs(attr[1]) do
+    table.insert(items, k .. ' = ' .. tostring(v))
+  end
+  return table.concat(items, ', ')
+end
+
+function Screen:blend(cell, cell_below, attr_hash)
     local attr = self._attr_table[cell.hl_id]
+    local below_attr = self._attr_table[cell_below.hl_id]
+    local through = cell.text  == ' '
     -- TODO: Should probably support non-rgb as well
     local rgb = attr[1]
-    if rgb.blend and rgb.blend ~= 0 and cell.text ==  ' ' then
+    if rgb.blend and rgb.blend ~= 0 then
       -- TODO: make the blending dynamic
       local info = self._hl_info[cell.hl_id]
-      cell = {
-        text = cell_below.text,
-        hl_id = cell.hl_id + 1000,
-      }
-      local new_attr = vim.deepcopy(attr)
+      local new_attr = through and vim.deepcopy(below_attr) or vim.deepcopy(attr)
       new_attr[1].blend = nil
-      if rgb.blend == 100 then
-        new_attr[1].foreground = Screen.colors.Black
-        new_attr[1].background = Screen.colors.White
+      local below_background = below_attr[1].background or self.default_colors.rgb_bg
+      local below_foreground = below_attr[1].foreground or self.default_colors.rgb_fg
+      local current_background = attr[1].background or self.default_colors.rgb_bg
+      local current_foreground = attr[1].foreground or self.default_colors.rgb_fg
+      local text = cell.text
+      new_attr[1].background = rgb_blend(rgb.blend, below_background, current_background)
+      -- TODO: Blend the underline (no failing unit test yet)
+      if through then
+        new_attr[1].foreground = rgb_blend(rgb.blend, below_foreground, current_background)
+        text = cell_below.text
       else
-        new_attr[1].foreground = Screen.colors.Black
-        new_attr[1].background = Screen.colors.Gray80
+        new_attr[1].foreground = rgb_blend(math.floor(rgb.blend/2), below_foreground, current_foreground)
       end
-      self._attr_table[cell.hl_id] = new_attr
-      self._hl_info[cell.hl_id] = info
-      self._new_attrs = true
+      local hash = hl_hash(new_attr)
+      hl_id = attr_hash[hash]
+      if not hl_id then
+        hl_id = self._next_blend_attr
+        self._next_blend_attr = self._next_blend_attr + 1
+        self._attr_table[hl_id] = new_attr
+        self._hl_info[hl_id] = info
+        attr_hash[hash] = hl_id
+        self._new_attrs = true
+      end
+
+      cell = {
+        text = text,
+        hl_id = hl_id
+      }
     end
     return cell
 end
@@ -994,8 +1036,14 @@ end
 function Screen:_handle_flush()
   local cursor = self._cursor
   if not self._options.ext_multigrid then
+    local attr_hash = {}
+    for i,v in pairs(self._attr_table) do
+      attr_hash[hl_hash(v)] = i
+    end
+
     local screen_width = self._grids[1].width
     local screen_height = self._grids[1].height
+    local background_grid = vim.deepcopy(self._grids[1])
     local grid = vim.deepcopy(self._grids[1])
     for igrid, current_grid in self:sort_grids() do
       local height = current_grid.height
@@ -1004,6 +1052,8 @@ function Screen:_handle_flush()
       if hidden then
         goto continue
       end
+
+      local is_background = not self.float_pos[igrid]
 
       local position = self:get_position(igrid)
       if igrid == self.msg_grid then
@@ -1075,7 +1125,12 @@ function Screen:_handle_flush()
             for j,v in ipairs(content) do
               local dest_col, max_dest_col = get_dest_and_max(position.startcol, j, right_margin_dest, margins.right, width, screen_width)
               if dest_col >= 1 and dest_col <= max_dest_col then
-                grid.rows[dest_row][dest_col] = self:blend(v, grid.rows[dest_row][dest_col])
+                if is_background then
+                  background_grid.rows[dest_row][dest_col] = v
+                  grid.rows[dest_row][dest_col] = v
+                else
+                  grid.rows[dest_row][dest_col] = self:blend(v, background_grid.rows[dest_row][dest_col], attr_hash)
+                end
               end
             end
           end
