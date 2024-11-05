@@ -1056,7 +1056,7 @@ function Screen:_handle_flush()
       local position = self:get_position(igrid)
       if igrid == self.msg_grid then
           height = self._grids[1].height - self.msg_grid_pos
-          if height > 1 and self.msg_scrolled then
+          if height > 1 and self.msg_scrolled and self.msg_grid_pos > 0 then
             local group = self.hl_groups['MsgSeparator']
             local separator = {
               text = self.msg_sep_char,
