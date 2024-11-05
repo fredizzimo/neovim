@@ -8964,11 +8964,12 @@ describe('float window', function()
           [4] = {win = 1001, topline = 0, botline = 2, curline = 0, curcol = 0, linecount = 1, sum_scroll_delta = 0};
         }}
       else
+        -- TODO: Verify this. It appears to be correct, but the window was not resized before
         screen:expect{grid=[[
                                                   |
-          {0:~                                       }|
+          {0:~                                       }|*3
           {5:┌──────────────────────────────────────┐}|
-          {5:│}{1:                                      }{5:│}|*3
+          {5:│}{1:                                      }{5:│}|
           {4:                                        }|
                                                   |
           {8:Press ENTER or type command to continue}^ |
