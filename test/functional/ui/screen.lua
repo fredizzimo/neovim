@@ -990,14 +990,12 @@ local function hl_hash(attr)
   return table.concat(items, ', ')
 end
 
-function Screen:blend(cell, cell_below, attr_hash)
+function Screen:blend(cell, cell_below, attr_hash, through)
     local attr = self._attr_table[cell.hl_id]
     local below_attr = self._attr_table[cell_below.hl_id]
-    local through = cell.text  == ' '
     -- TODO: Should probably support non-rgb as well
     local rgb = attr[1]
     if rgb.blend and rgb.blend ~= 0 then
-      -- TODO: make the blending dynamic
       local info = self._hl_info[cell.hl_id]
       local new_attr = through and vim.deepcopy(below_attr) or vim.deepcopy(attr)
       new_attr[1].blend = nil
@@ -1043,8 +1041,8 @@ function Screen:_handle_flush()
 
     local screen_width = self._grids[1].width
     local screen_height = self._grids[1].height
-    local background_grid = vim.deepcopy(self._grids[1])
-    local grid = vim.deepcopy(self._grids[1])
+    local background_grid = vim.deepcopy(self._grids[1], true)
+    local grid = vim.deepcopy(self._grids[1], true)
     for igrid, current_grid in self:sort_grids() do
       local height = current_grid.height
       local width = current_grid.width
@@ -1059,7 +1057,6 @@ function Screen:_handle_flush()
       if igrid == self.msg_grid then
           height = self._grids[1].height - self.msg_grid_pos
           if height > 1 and self.msg_scrolled then
-            --print(inspect(self))
             local group = self.hl_groups['MsgSeparator']
             local separator = {
               text = self.msg_sep_char,
@@ -1122,14 +1119,35 @@ function Screen:_handle_flush()
           local dest_row, max_dest_row = get_dest_and_max(position.startrow, i, bottom_margin_dest, margins.bottom, height, screen_height)
           if dest_row >= 1 and dest_row <= max_dest_row then
             local content = current_grid.rows[i]
+            local prev_empty = false
             for j,v in ipairs(content) do
               local dest_col, max_dest_col = get_dest_and_max(position.startcol, j, right_margin_dest, margins.right, width, screen_width)
               if dest_col >= 1 and dest_col <= max_dest_col then
                 if is_background then
                   background_grid.rows[dest_row][dest_col] = v
-                  grid.rows[dest_row][dest_col] = v
+                  grid.rows[dest_row][dest_col] = vim.deepcopy(v)
                 else
-                  grid.rows[dest_row][dest_col] = self:blend(v, background_grid.rows[dest_row][dest_col], attr_hash)
+                  local bg_cell = background_grid.rows[dest_row][dest_col]
+                  local current_empty = v.text == ' '
+                  local next_empty = j == #content or content[j+1].text == ' '
+                  local through = current_empty
+                  if bg_cell.text == '' and not prev_empty then
+                    through = false
+                  end
+                  local last_screen_col = dest_col == #background_grid.rows[dest_row]
+                  if not last_screen_col and background_grid.rows[dest_row][dest_col + 1] .text == '' and not next_empty then
+                    through = false
+                  end
+                  prev_empty = current_empty
+
+                  local cell = self:blend(v, bg_cell, attr_hash, through)
+                  grid.rows[dest_row][dest_col] = cell
+                  if background_grid.rows[dest_row][dest_col].text == "" and j==1 then
+                    grid.rows[dest_row][dest_col-1].text = ' '
+                  end
+                  if not last_screen_col and background_grid.rows[dest_row][dest_col + 1].text == "" and j==#content then
+                    grid.rows[dest_row][dest_col + 1].text = ' '
+                  end
                 end
               end
             end
@@ -1196,6 +1214,7 @@ end
 
 function Screen:_handle_grid_destroy(grid)
   self._grids[grid] = nil
+  self.float_pos[grid] = nil
   self.win_position[grid] = nil
   self.win_viewport[grid] = nil
   self.win_viewport_margins[grid] = nil
@@ -1763,7 +1782,9 @@ function Screen:sort_grids()
   -- collect the keys
   local keys = {}
   for k in pairs(self._grids) do
-    table.insert(keys, k)
+    if k then
+      table.insert(keys, k)
+    end
   end
   local f = function(a, b)
     local compindex = 8
