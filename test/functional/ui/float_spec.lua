@@ -5151,8 +5151,7 @@ describe('float window', function()
             {0:~    }{12:~           }{0:                       }|*3
             {3:-- INSERT --}                            |
           ]], popupmenu={
-            -- TODO: Is this correct?
-            anchor = {4, 2, 7}, items = items, pos = 0
+            anchor = {1, 2, 7}, items = items, pos = 0
           }}
         end
 
