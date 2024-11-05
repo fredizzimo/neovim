@@ -22,6 +22,7 @@ local curbuf = n.api.nvim_get_current_buf
 local curwin = n.api.nvim_get_current_win
 local curtab = n.api.nvim_get_current_tabpage
 local NIL = vim.NIL
+local skip = t.skip
 
 describe('float window', function()
   before_each(function()
@@ -4815,6 +4816,7 @@ describe('float window', function()
     end)
 
     it('does not crash with inccommand #9379', function()
+      skip(true, "Inccommand split is broken with multigrid")
       local expected_pos = {
         [4]={ 1001, 'NW', 1, 2, 0, true, 50, 1, 2, 0},
       }
