@@ -290,7 +290,8 @@ function Screen:attach(session)
   self._options = options
   self._clear_attrs = (not options.ext_linegrid) and {} or nil
   self:_handle_resize(self._width, self._height)
-  self.uimeths.attach(self._width, self._height, options)
+  -- Always internally use multigrid
+  self.uimeths.attach(self._width, self._height, vim.tbl_deep_extend('force', options, {ext_multigrid=true}))
   if self._options.rgb == nil then
     -- nvim defaults to rgb=true internally,
     -- simplify test code by doing the same.
