@@ -1196,11 +1196,9 @@ end
 
 function Screen:_handle_grid_destroy(grid)
   self._grids[grid] = nil
-  if self._options.ext_multigrid then
-    self.win_position[grid] = nil
-    self.win_viewport[grid] = nil
-    self.win_viewport_margins[grid] = nil
-  end
+  self.win_position[grid] = nil
+  self.win_viewport[grid] = nil
+  self.win_viewport_margins[grid] = nil
 end
 
 function Screen:_handle_eol_clear()
