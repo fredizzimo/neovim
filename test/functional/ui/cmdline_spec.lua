@@ -336,7 +336,7 @@ local function test_cmdline(linegrid)
   end)
 
   it('works with cmdline window', function()
-    skip("c-c is broken and closes the window")
+    skip('c-c is broken and closes the window')
     feed(':make')
     screen:expect {
       grid = [[
@@ -940,7 +940,7 @@ describe('cmdline redraw', function()
   end)
 
   it('after pressing Ctrl-C in cmdwin in Visual mode #18967', function()
-    skip("c-c is broken and closes the window")
+    skip('c-c is broken and closes the window')
     screen:try_resize(40, 10)
     command('set cmdwinheight=3')
     feed('q:iabc<Esc>vhh')
