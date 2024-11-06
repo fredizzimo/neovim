@@ -614,7 +614,7 @@ local function screen_tests(linegrid)
 
     it('messages from the same Ex command as resize are visible #22225', function()
       -- The ~ are not removed when using multigrid
-      skip(true, "TODO: Multigrid")
+      skip(true, 'TODO: Multigrid')
       feed(':set columns=20 | call<CR>')
       screen:expect([[
                             |*9
@@ -860,7 +860,7 @@ it('CTRL-F or CTRL-B scrolls a page after UI attach/resize #20605', function()
 end)
 
 it("showcmd doesn't cause empty grid_line with redrawdebug=compositor #22593", function()
-  skip(true, "TODO: Multigrid")
+  skip(true, 'TODO: Multigrid')
   clear()
   local screen = Screen.new(30, 2)
   command('set showcmd redrawdebug=compositor')
