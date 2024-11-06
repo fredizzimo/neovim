@@ -292,7 +292,11 @@ function Screen:attach(session)
   self._clear_attrs = (not options.ext_linegrid) and {} or nil
   self:_handle_resize(self._width, self._height)
   -- Always internally use multigrid
-  self.uimeths.attach(self._width, self._height, vim.tbl_deep_extend('force', options, {ext_multigrid=true}))
+  self.uimeths.attach(
+    self._width,
+    self._height,
+    vim.tbl_deep_extend('force', options, { ext_multigrid = true })
+  )
   if self._options.rgb == nil then
     -- nvim defaults to rgb=true internally,
     -- simplify test code by doing the same.
@@ -965,19 +969,18 @@ function Screen:_handle_msg_set_pos(grid, row, scrolled, char, zindex, compindex
   self.msg_compindex = compindex
 end
 
-
 local function rgb_blend(ratio, rgb1, rgb2)
   local a = ratio
   local b = 100 - ratio
-  local r1 = bit.rshift(bit.band(rgb1,  0xFF0000), 16)
+  local r1 = bit.rshift(bit.band(rgb1, 0xFF0000), 16)
   local g1 = bit.rshift(bit.band(rgb1, 0x00FF00), 8)
   local b1 = bit.band(rgb1, 0x0000FF)
-  local r2 = bit.rshift(bit.band(rgb2,  0xFF0000), 16)
+  local r2 = bit.rshift(bit.band(rgb2, 0xFF0000), 16)
   local g2 = bit.rshift(bit.band(rgb2, 0x00FF00), 8)
   local b2 = bit.band(rgb2, 0x0000FF)
-  local mr = math.floor((a * r1 + b * r2)/100)
-  local mg = math.floor((a * g1 + b * g2)/100)
-  local mb = math.floor((a * b1 + b * b2)/100)
+  local mr = math.floor((a * r1 + b * r2) / 100)
+  local mg = math.floor((a * g1 + b * g2) / 100)
+  local mb = math.floor((a * b1 + b * b2) / 100)
   return bit.lshift(mr, 16) + bit.lshift(mg, 8) + mb
 end
 
@@ -991,51 +994,52 @@ local function hl_hash(attr)
 end
 
 function Screen:blend(cell, cell_below, attr_hash, through)
-    local attr = self._attr_table[cell.hl_id]
-    local below_attr = self._attr_table[cell_below.hl_id]
-    -- TODO: Should probably support non-rgb as well
-    local rgb = attr[1]
-    if rgb.blend and rgb.blend ~= 0 then
-      local info = self._hl_info[cell.hl_id]
-      local new_attr = through and vim.deepcopy(below_attr) or vim.deepcopy(attr)
-      new_attr[1].blend = nil
-      local below_background = below_attr[1].background or self.default_colors.rgb_bg
-      local below_foreground = below_attr[1].foreground or self.default_colors.rgb_fg
-      local current_background = attr[1].background or self.default_colors.rgb_bg
-      local current_foreground = attr[1].foreground or self.default_colors.rgb_fg
-      local text = cell.text
-      new_attr[1].background = rgb_blend(rgb.blend, below_background, current_background)
-      -- TODO: Blend the underline (no failing unit test yet)
-      if through then
-        new_attr[1].foreground = rgb_blend(rgb.blend, below_foreground, current_background)
-        text = cell_below.text
-      else
-        new_attr[1].foreground = rgb_blend(math.floor(rgb.blend/2), below_foreground, current_foreground)
-      end
-      local hash = hl_hash(new_attr)
-      hl_id = attr_hash[hash]
-      if not hl_id then
-        hl_id = self._next_blend_attr
-        self._next_blend_attr = self._next_blend_attr + 1
-        self._attr_table[hl_id] = new_attr
-        self._hl_info[hl_id] = info
-        attr_hash[hash] = hl_id
-        self._new_attrs = true
-      end
-
-      cell = {
-        text = text,
-        hl_id = hl_id
-      }
+  local attr = self._attr_table[cell.hl_id]
+  local below_attr = self._attr_table[cell_below.hl_id]
+  -- TODO: Should probably support non-rgb as well
+  local rgb = attr[1]
+  if rgb.blend and rgb.blend ~= 0 then
+    local info = self._hl_info[cell.hl_id]
+    local new_attr = through and vim.deepcopy(below_attr) or vim.deepcopy(attr)
+    new_attr[1].blend = nil
+    local below_background = below_attr[1].background or self.default_colors.rgb_bg
+    local below_foreground = below_attr[1].foreground or self.default_colors.rgb_fg
+    local current_background = attr[1].background or self.default_colors.rgb_bg
+    local current_foreground = attr[1].foreground or self.default_colors.rgb_fg
+    local text = cell.text
+    new_attr[1].background = rgb_blend(rgb.blend, below_background, current_background)
+    -- TODO: Blend the underline (no failing unit test yet)
+    if through then
+      new_attr[1].foreground = rgb_blend(rgb.blend, below_foreground, current_background)
+      text = cell_below.text
+    else
+      new_attr[1].foreground =
+        rgb_blend(math.floor(rgb.blend / 2), below_foreground, current_foreground)
     end
-    return cell
+    local hash = hl_hash(new_attr)
+    hl_id = attr_hash[hash]
+    if not hl_id then
+      hl_id = self._next_blend_attr
+      self._next_blend_attr = self._next_blend_attr + 1
+      self._attr_table[hl_id] = new_attr
+      self._hl_info[hl_id] = info
+      attr_hash[hash] = hl_id
+      self._new_attrs = true
+    end
+
+    cell = {
+      text = text,
+      hl_id = hl_id,
+    }
+  end
+  return cell
 end
 
 function Screen:_handle_flush()
   local cursor = self._cursor
   if not self._options.ext_multigrid then
     local attr_hash = {}
-    for i,v in pairs(self._attr_table) do
+    for i, v in pairs(self._attr_table) do
       attr_hash[hl_hash(v)] = i
     end
 
@@ -1046,7 +1050,9 @@ function Screen:_handle_flush()
     for igrid, current_grid in self:sort_grids() do
       local height = current_grid.height
       local width = current_grid.width
-      local hidden = igrid > 1 and (self.win_position[igrid] == nil and self.float_pos[igrid] == nil and self.msg_grid ~= igrid) or (self.float_pos[igrid] and self.float_pos[igrid].external)
+      local hidden = igrid > 1
+          and (self.win_position[igrid] == nil and self.float_pos[igrid] == nil and self.msg_grid ~= igrid)
+        or (self.float_pos[igrid] and self.float_pos[igrid].external)
       if hidden then
         goto continue
       end
@@ -1055,17 +1061,17 @@ function Screen:_handle_flush()
 
       local position = self:get_position(igrid)
       if igrid == self.msg_grid then
-          height = self._grids[1].height - self.msg_grid_pos
-          if height > 1 and self.msg_scrolled and self.msg_grid_pos > 0 then
-            local group = self.hl_groups['MsgSeparator']
-            local separator = {
-              text = self.msg_sep_char,
-              hl_id = group,
-            }
-            for i = 1, #grid.rows[1] do
-              grid.rows[self.msg_grid_pos][i] = separator
-            end
+        height = self._grids[1].height - self.msg_grid_pos
+        if height > 1 and self.msg_scrolled and self.msg_grid_pos > 0 then
+          local group = self.hl_groups['MsgSeparator']
+          local separator = {
+            text = self.msg_sep_char,
+            hl_id = group,
+          }
+          for i = 1, #grid.rows[1] do
+            grid.rows[self.msg_grid_pos][i] = separator
           end
+        end
       end
       if cursor.grid == igrid then
         self._composed_cursor.row = cursor.row + position.startrow
@@ -1102,7 +1108,7 @@ function Screen:_handle_flush()
         local function get_dest_and_max(start, i, margin_dest, margin, dim, max_dim)
           -- marigin_index is greater or equal to 1 for margin cells
           local margin_index = i - (dim - margin)
-          if margin_index >=1 then
+          if margin_index >= 1 then
             local dest = margin_dest + margin_index - 1
             return dest, max_dim
           else
@@ -1113,15 +1119,31 @@ function Screen:_handle_flush()
         end
 
         -- TODO Left and top margins (maybe untested)
-        local bottom_margin_dest = get_margin_dest(position.startrow,  height, screen_height, margins.bottom)
-        local right_margin_dest = get_margin_dest(position.startcol,  width, screen_width, margins.right)
+        local bottom_margin_dest =
+          get_margin_dest(position.startrow, height, screen_height, margins.bottom)
+        local right_margin_dest =
+          get_margin_dest(position.startcol, width, screen_width, margins.right)
         for i = 1, height do
-          local dest_row, max_dest_row = get_dest_and_max(position.startrow, i, bottom_margin_dest, margins.bottom, height, screen_height)
+          local dest_row, max_dest_row = get_dest_and_max(
+            position.startrow,
+            i,
+            bottom_margin_dest,
+            margins.bottom,
+            height,
+            screen_height
+          )
           if dest_row >= 1 and dest_row <= max_dest_row then
             local content = current_grid.rows[i]
             local prev_empty = false
-            for j,v in ipairs(content) do
-              local dest_col, max_dest_col = get_dest_and_max(position.startcol, j, right_margin_dest, margins.right, width, screen_width)
+            for j, v in ipairs(content) do
+              local dest_col, max_dest_col = get_dest_and_max(
+                position.startcol,
+                j,
+                right_margin_dest,
+                margins.right,
+                width,
+                screen_width
+              )
               if dest_col >= 1 and dest_col <= max_dest_col then
                 if is_background then
                   background_grid.rows[dest_row][dest_col] = v
@@ -1129,23 +1151,31 @@ function Screen:_handle_flush()
                 else
                   local bg_cell = background_grid.rows[dest_row][dest_col]
                   local current_empty = v.text == ' '
-                  local next_empty = j == #content or content[j+1].text == ' '
+                  local next_empty = j == #content or content[j + 1].text == ' '
                   local through = current_empty
                   if bg_cell.text == '' and not prev_empty then
                     through = false
                   end
                   local last_screen_col = dest_col == #background_grid.rows[dest_row]
-                  if not last_screen_col and background_grid.rows[dest_row][dest_col + 1] .text == '' and not next_empty then
+                  if
+                    not last_screen_col
+                    and background_grid.rows[dest_row][dest_col + 1].text == ''
+                    and not next_empty
+                  then
                     through = false
                   end
                   prev_empty = current_empty
 
                   local cell = self:blend(v, bg_cell, attr_hash, through)
                   grid.rows[dest_row][dest_col] = cell
-                  if background_grid.rows[dest_row][dest_col].text == "" and j==1 then
-                    grid.rows[dest_row][dest_col-1].text = ' '
+                  if background_grid.rows[dest_row][dest_col].text == '' and j == 1 then
+                    grid.rows[dest_row][dest_col - 1].text = ' '
                   end
-                  if not last_screen_col and background_grid.rows[dest_row][dest_col + 1].text == "" and j==#content then
+                  if
+                    not last_screen_col
+                    and background_grid.rows[dest_row][dest_col + 1].text == ''
+                    and j == #content
+                  then
                     grid.rows[dest_row][dest_col + 1].text = ' '
                   end
                 end
@@ -1156,7 +1186,7 @@ function Screen:_handle_flush()
       end
       ::continue::
     end
-    self._composed_grids = {grid}
+    self._composed_grids = { grid }
   end
 end
 
@@ -1777,7 +1807,6 @@ function Screen:redraw_debug(timeout)
   run_session(self._session, nil, notification_cb, nil, timeout)
 end
 
-
 function Screen:sort_grids()
   -- collect the keys
   local keys = {}
@@ -1788,8 +1817,8 @@ function Screen:sort_grids()
   end
   local f = function(a, b)
     local compindex = 8
-    local compindex_a  = self.float_pos[a] and self.float_pos[a][compindex] or 0
-    local compindex_b  = self.float_pos[b] and self.float_pos[b][compindex] or 0
+    local compindex_a = self.float_pos[a] and self.float_pos[a][compindex] or 0
+    local compindex_b = self.float_pos[b] and self.float_pos[b][compindex] or 0
 
     if a == self.msg_grid then
       compindex_a = self.msg_compindex
@@ -1813,23 +1842,24 @@ end
 
 function Screen:get_position(igrid)
   if igrid == self.msg_grid then
-      return  {
-        startrow = self.msg_grid_pos,
-        startcol = 0,
-      }
+    return {
+      startrow = self.msg_grid_pos,
+      startcol = 0,
+    }
   elseif self.float_pos[igrid] then
-    local win, anchor, anchor_grid, anchor_row, anchor_col, mouse_enabled, zindex, compindex, abs_row, abs_col = table.unpack(self.float_pos[igrid])
+    local win, anchor, anchor_grid, anchor_row, anchor_col, mouse_enabled, zindex, compindex, abs_row, abs_col =
+      table.unpack(self.float_pos[igrid])
     --local anchor_pos = self:get_position(anchor_grid)
     return {
       startrow = abs_row,
-      startcol = abs_col
+      startcol = abs_col,
     }
   elseif self.win_position[igrid] then
     return self.win_position[igrid]
   else
     return {
-        startrow = 0,
-        startcol = 0,
+      startrow = 0,
+      startcol = 0,
     }
   end
 end
