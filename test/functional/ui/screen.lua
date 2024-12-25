@@ -1057,7 +1057,7 @@ function Screen:_handle_flush()
         goto continue
       end
 
-      local is_background = not self.float_pos[igrid]
+      local is_background = not self.float_pos[igrid] and self.msg_grid ~= igrid
 
       local position = self:get_position(igrid)
       if igrid == self.msg_grid then
@@ -1808,7 +1808,7 @@ function Screen:redraw_debug(timeout)
 end
 
 function Screen:sort_grids()
-  -- collect the keys
+  local compindex = 8
   local keys = {}
   for k in pairs(self._grids) do
     if k then
@@ -1816,7 +1816,6 @@ function Screen:sort_grids()
     end
   end
   local f = function(a, b)
-    local compindex = 8
     local compindex_a = self.float_pos[a] and self.float_pos[a][compindex] or 0
     local compindex_b = self.float_pos[b] and self.float_pos[b][compindex] or 0
 
