@@ -1007,6 +1007,17 @@ function Screen:blend(cell, cell_below, attr_hash, through)
     local current_background = attr[1].background or self.default_colors.rgb_bg
     local current_foreground = attr[1].foreground or self.default_colors.rgb_fg
     local text = cell.text
+    if attr[1].reverse then
+      local temp = current_background
+      current_background = current_foreground
+      current_foreground = temp
+    end
+    if below_attr[1].reverse then
+      local temp = below_background
+      below_background = below_foreground
+      below_foreground = temp
+    end
+    new_attr[1].reverse = nil
     new_attr[1].background = rgb_blend(rgb.blend, below_background, current_background)
     -- TODO: Blend the underline (no failing unit test yet)
     if through then
