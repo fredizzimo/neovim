@@ -1024,7 +1024,8 @@ function Screen:blend(cell, cell_below, attr_hash, through)
       new_attr[1].foreground = rgb_blend(rgb.blend, below_foreground, current_background)
       text = cell_below.text
     else
-      new_attr[1].foreground = rgb_blend(math.floor(rgb.blend / 2), below_foreground, current_foreground)
+      new_attr[1].foreground =
+        rgb_blend(math.floor(rgb.blend / 2), below_foreground, current_foreground)
     end
     -- This looks like a bug, the bold attribute is always combined, even if there's no see-thgrough
     if below_attr[1].bold and rgb.blend >= 50 then
