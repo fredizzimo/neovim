@@ -212,6 +212,7 @@ function Screen.new(width, height, options, session)
     hl_groups = {},
     _default_attr_ids = nil,
     mouse_enabled = true,
+    forced_multigrid = false,
     _attrs = {},
     _hl_info = { [0] = {} },
     _attr_table = { [0] = { {}, {} } },
@@ -291,11 +292,16 @@ function Screen:attach(session)
   self._options = options
   self._clear_attrs = (not options.ext_linegrid) and {} or nil
   self:_handle_resize(self._width, self._height)
-  -- Always internally use multigrid
+  -- Forced multigrid emulates an multigrid compatible client, so that the test can be shared
+  self.forced_multigrid = t.is_forced_multigrid()
   self.uimeths.attach(
     self._width,
     self._height,
-    vim.tbl_deep_extend('force', options, { ext_multigrid = true })
+    vim.tbl_deep_extend(
+      'force',
+      options,
+      { ext_multigrid = self.forced_multigrid or self._options.ext_multigrid }
+    )
   )
   if self._options.rgb == nil then
     -- nvim defaults to rgb=true internally,

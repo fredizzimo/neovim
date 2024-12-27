@@ -860,4 +860,19 @@ function M.skip_fragile(pending_fn, cond)
   return false
 end
 
+--- @return boolean
+function M.is_forced_multigrid()
+  local forced_multigrid = os.getenv('TEST_FORCE_MULTIGRID')
+  return forced_multigrid == '1' or forced_multigrid == ''
+end
+
+--- @param reason? string
+function M.skip_forced_mulitgrid(reason)
+  if M.is_forced_multigrid() then
+    --- @type fun(reason: string)
+    local pending = getfenv(2).pending
+    pending('skipped forced multigrid test: ' .. reason)
+  end
+end
+
 return M
