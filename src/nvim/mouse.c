@@ -1879,7 +1879,8 @@ static void mouse_check_grid(colnr_T *vcolp, int *flagsp)
   int start_row = 0;
   int start_col = 0;
   grid_adjust(&gp, &start_row, &start_col);
-  if (gp->handle != click_grid || gp->chars == NULL) {
+  // Grid 1 is special when using multigrid
+  if ((gp->handle != click_grid && click_grid != 1) || gp->chars == NULL) {
     return;
   }
   click_row += start_row;
