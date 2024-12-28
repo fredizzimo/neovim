@@ -1001,6 +1001,9 @@ end
 
 function Screen:blend(cell, cell_below, attr_hash, through)
   local attr = self._attr_table[cell.hl_id]
+  if attr == nil then
+    return cell
+  end
   local below_attr = self._attr_table[cell_below.hl_id]
   -- TODO: Should probably support non-rgb as well
   local rgb = attr[1]
