@@ -866,7 +866,7 @@ function M.is_forced_multigrid()
   return forced_multigrid == '1' or forced_multigrid == ''
 end
 
---- @param reason? string
+--- @param reason string
 function M.skip_forced_mulitgrid(reason)
   if M.is_forced_multigrid() then
     --- @type fun(reason: string)
