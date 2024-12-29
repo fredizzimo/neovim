@@ -233,7 +233,6 @@ void msg_grid_validate(void)
     }
   }
   if (msg_grid.chars) {
-    ui_ext_msg_set_pos(msg_grid_pos, msg_scrolled);
     ui_call_grid_resize(msg_grid.handle, msg_grid.cols, msg_grid.rows);
   }
   msg_grid_adj.cols = Columns;
