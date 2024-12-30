@@ -1082,8 +1082,6 @@ function Screen:_handle_flush()
     local background_grid = vim.deepcopy(self._grids[1], true)
     local grid = vim.deepcopy(self._grids[1], true)
     for igrid, current_grid in self:sort_grids() do
-      local height = current_grid.height
-      local width = current_grid.width
       local hidden = igrid > 1
           and (self.win_position[igrid] == nil and self.float_pos[igrid] == nil and self.msg_grid ~= igrid)
         or (self.float_pos[igrid] and self.float_pos[igrid].external)
@@ -1094,6 +1092,9 @@ function Screen:_handle_flush()
       local is_background = not self.float_pos[igrid] and self.msg_grid ~= igrid
 
       local position = self:get_position(igrid)
+      local height = position.height
+      local width = position.width
+
       if igrid == self.msg_grid then
         height = self._grids[1].height - self.msg_grid_pos
         if height > 1 and self.msg_scrolled and self.msg_grid_pos > 0 then
@@ -1133,6 +1134,9 @@ function Screen:_handle_flush()
             top = 0,
             bottom = 0,
           }
+        end
+        if height > current_grid.height then
+          height = current_grid.height
         end
         local function get_margin_dest(start, dim, max_dim, margin)
           local max_win = math.min(start + dim, max_dim)
@@ -1878,6 +1882,8 @@ function Screen:get_position(igrid)
     return {
       startrow = self.msg_grid_pos,
       startcol = 0,
+      height = self._grids[igrid].height,
+      width = self._grids[igrid].width,
     }
   elseif self.float_pos[igrid] then
     local win, anchor, anchor_grid, anchor_row, anchor_col, mouse_enabled, zindex, compindex, abs_row, abs_col =
@@ -1886,6 +1892,8 @@ function Screen:get_position(igrid)
     return {
       startrow = abs_row,
       startcol = abs_col,
+      height = self._grids[igrid].height,
+      width = self._grids[igrid].width,
     }
   elseif self.win_position[igrid] then
     return self.win_position[igrid]
@@ -1893,6 +1901,8 @@ function Screen:get_position(igrid)
     return {
       startrow = 0,
       startcol = 0,
+      height = self._grids[igrid].height,
+      width = self._grids[igrid].width,
     }
   end
 end
