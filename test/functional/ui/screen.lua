@@ -711,7 +711,6 @@ screen:redraw_debug() to show all intermediate screen states.]]
     self.cmdline[self.cmdline_hide_level] = nil
     self.cmdline_hide_level = nil
   end
-
 end
 
 function Screen:expect_unchanged(intermediate, waittime_ms)
