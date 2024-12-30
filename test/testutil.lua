@@ -867,11 +867,14 @@ function M.is_forced_multigrid()
 end
 
 --- @param reason string
-function M.skip_forced_mulitgrid(reason)
-  if M.is_forced_multigrid() then
-    --- @type fun(reason: string)
-    local pending = getfenv(2).pending
-    pending('skipped forced multigrid test: ' .. reason)
+--- @param cond? boolean
+function M.skip_forced_mulitgrid(reason, cond)
+  if cond == nil or cond then
+    if M.is_forced_multigrid() then
+      --- @type fun(reason: string)
+      local pending = getfenv(2).pending
+      pending('skipped forced multigrid test: ' .. reason)
+    end
   end
 end
 
