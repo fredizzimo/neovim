@@ -10,6 +10,7 @@ local insert = n.insert
 local feed = n.feed
 local command = n.command
 local assert_alive = n.assert_alive
+local buggy_split = 'FIXME: Inccommand split does not work with multigrid #24802'
 
 -- Implements a :Replace command that works like :substitute and has multibuffer support.
 local setup_replace_cmd = [[
@@ -272,6 +273,7 @@ describe("'inccommand' for user commands", function()
   end)
 
   it('works with inccommand=split', function()
+    t.skip_forced_mulitgrid(buggy_split)
     command('set inccommand=split')
     feed(':Replace text cats')
     screen:expect([[
@@ -296,6 +298,7 @@ describe("'inccommand' for user commands", function()
   end)
 
   it('properly closes preview when inccommand=split', function()
+    t.skip_forced_mulitgrid(buggy_split)
     command('set inccommand=split')
     feed(':Replace text cats<Esc>')
     screen:expect([[
@@ -314,6 +317,7 @@ describe("'inccommand' for user commands", function()
   end)
 
   it('properly executes command when inccommand=split', function()
+    t.skip_forced_mulitgrid(buggy_split)
     command('set inccommand=split')
     feed(':Replace text cats<CR>')
     screen:expect([[
@@ -332,6 +336,7 @@ describe("'inccommand' for user commands", function()
   end)
 
   it('shows preview window only when range is not current line', function()
+    t.skip_forced_mulitgrid(buggy_split)
     command('set inccommand=split')
     feed('gg:.Replace text cats')
     screen:expect([[
@@ -350,6 +355,7 @@ describe("'inccommand' for user commands", function()
   end)
 
   it('does not crash on ambiguous command #18825', function()
+    t.skip_forced_mulitgrid(buggy_split)
     command('set inccommand=split')
     command('command Reply echo 1')
     feed(':R')
@@ -493,6 +499,7 @@ describe("'inccommand' for user commands", function()
   end)
 
   it('disables preview if preview buffer cannot be created #27086', function()
+    t.skip_forced_mulitgrid(buggy_split)
     command('set inccommand=split')
     api.nvim_buf_set_name(0, '[Preview]')
     exec_lua([[
@@ -588,6 +595,7 @@ describe("'inccommand' with multiple buffers", function()
   end)
 
   it('works with inccommand=split', function()
+    t.skip_forced_mulitgrid(buggy_split)
     command('set inccommand=split')
     feed(':Replace foo bar')
     screen:expect([[
