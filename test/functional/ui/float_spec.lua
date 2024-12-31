@@ -22,7 +22,6 @@ local curbuf = n.api.nvim_get_current_buf
 local curwin = n.api.nvim_get_current_win
 local curtab = n.api.nvim_get_current_tabpage
 local NIL = vim.NIL
-local skip = t.skip
 
 describe('float window', function()
   before_each(function()
@@ -4816,7 +4815,7 @@ describe('float window', function()
     end)
 
     it('does not crash with inccommand #9379', function()
-      skip(true, "Inccommand split is broken with multigrid")
+      t.skip_forced_mulitgrid('FIXME: Inccommand split does not work with multigrid #24802')
       local expected_pos = {
         [4]={ 1001, 'NW', 1, 2, 0, true, 50, 1, 2, 0},
       }
@@ -5142,8 +5141,7 @@ describe('float window', function()
           ]], float_pos={
             [4] = { 1001, "NW", 1, 2, 5, true, 50, 1, 2, 5 }
           }, popupmenu={
-            -- TODO: Is this correct?
-            anchor = {4, 2, 7}, items = items, pos = 0
+            anchor = {4, 0, 2}, items = items, pos = 0
           }}
         else
           screen:expect{grid=[[
@@ -6886,8 +6884,14 @@ describe('float window', function()
           ]])
         end
 
+        if not multigrid and not t.is_forced_multigrid() then
+          eq("UI doesn't support external windows",
+             pcall_err(api.nvim_win_set_config, 0, {external=true, width=30, height=2}))
+          return
+        end
+        api.nvim_win_set_config(0, {external=true, width=30, height=2})
+
         if multigrid then
-          api.nvim_win_set_config(0, {external=true, width=30, height=2})
           expected_pos = {[4]={external=true}}
           screen:expect{grid=[[
           ## grid 1
@@ -6904,7 +6908,6 @@ describe('float window', function()
             {0:~                             }|
           ]], float_pos=expected_pos}
         else
-          api.nvim_win_set_config(0, {external=true, width=30, height=2})
           screen:expect([[
             x                                       |
             {0:~                                       }|*2
@@ -7207,8 +7210,14 @@ describe('float window', function()
       end)
 
       it(":tabnew and :tabnext (external)", function()
-        api.nvim_win_set_config(win, {external=true, width=65, height=4})
-        feed(":tabnew<cr>")
+        if not multigrid and not t.is_forced_multigrid() then
+            eq("UI doesn't support external windows",
+               pcall_err(api.nvim_win_set_config, 0, {external=true, width=65, height=4}))
+            return
+        else
+          api.nvim_win_set_config(win, {external=true, width=65, height=4})
+          feed(":tabnew<cr>")
+        end
         if multigrid then
           -- also test external window wider than main screen
           expected_pos = {[4]={external=true}}
@@ -7229,7 +7238,7 @@ describe('float window', function()
             ^                                        |
             {0:~                                       }|*4
           ]], float_pos=expected_pos}
-        else
+          else
           screen:expect{grid=[[
             {9: + [No Name] }{3: }{11:2}{3:+ [No Name] }{5:            }{9:X}|
             ^                                        |
@@ -8658,8 +8667,8 @@ describe('float window', function()
             {5:│}{8:~                   }{5:│}|*2
             {5:└────────────────────┘}|
           ]], float_pos={
-          [4] = {1001, "NW", 1, 1, 5, true, 400};
-          [6] = {1003, "NW", 1, 3, 7, true, 300};
+          [4] = {1001, "NW", 1, 1, 5, true, 400, 3, 1, 5};
+          [6] = {1003, "NW", 1, 3, 7, true, 300, 2, 2, 7};
         }, win_viewport={
           [2] = {win = 1000, topline = 0, botline = 2, curline = 0, curcol = 0, linecount = 1, sum_scroll_delta = 0};
           [4] = {win = 1001, topline = 0, botline = 2, curline = 0, curcol = 0, linecount = 1, sum_scroll_delta = 0};
@@ -8708,8 +8717,8 @@ describe('float window', function()
             {5:│}{8:~                   }{5:│}|*2
             {5:└────────────────────┘}|
           ]], float_pos={
-          [4] = {1001, "NW", 1, 1, 5, true, 100};
-          [6] = {1003, "NW", 1, 3, 7, true, 150};
+          [4] = {1001, "NW", 1, 1, 5, true, 100, 1, 1, 5 };
+          [6] = {1003, "NW", 1, 3, 7, true, 150, 2, 1, 7 };
         }, win_viewport={
           [2] = {win = 1000, topline = 0, botline = 2, curline = 0, curcol = 0, linecount = 1, sum_scroll_delta = 0};
           [4] = {win = 1001, topline = 0, botline = 2, curline = 0, curcol = 0, linecount = 1, sum_scroll_delta = 0};
@@ -8945,6 +8954,7 @@ describe('float window', function()
       ]], win)
 
       if multigrid then
+        -- FIXME: The grid is not resized
         screen:expect{grid=[[
         ## grid 1
           [2:----------------------------------------]|*7
@@ -8965,13 +8975,23 @@ describe('float window', function()
           [2] = {win = 1000, topline = 0, botline = 2, curline = 0, curcol = 0, linecount = 1, sum_scroll_delta = 0};
           [4] = {win = 1001, topline = 0, botline = 2, curline = 0, curcol = 0, linecount = 1, sum_scroll_delta = 0};
         }}
-      else
-        -- TODO: Verify this. It appears to be correct, but the window was not resized before
+      elseif t.is_forced_multigrid() then
+        -- FIXME: The grid is not resized
         screen:expect{grid=[[
                                                   |
           {0:~                                       }|*3
           {5:┌──────────────────────────────────────┐}|
           {5:│}{1:                                      }{5:│}|
+          {4:                                        }|
+                                                  |
+          {8:Press ENTER or type command to continue}^ |
+        ]]}
+      else
+        screen:expect{grid=[[
+                                                  |
+          {0:~                                       }|
+          {5:┌──────────────────────────────────────┐}|
+          {5:│}{1:                                      }{5:│}|*3
           {4:                                        }|
                                                   |
           {8:Press ENTER or type command to continue}^ |
@@ -9468,16 +9488,6 @@ describe('float window', function()
           {5:└──┘}|
         ]], float_pos=expected_pos}
       else
-        -- TODO: Why is the border not terminated here, like the "terminates border on edge of viewport when window extends past viewport" test?
-        -- screen:expect([[
-        --   ^     {5:┌─┌─┌────┐─┐┐}                      |
-        --   {0:~    }{5:│}{1: }{5:│}{1: }{5:│}{1:    }{5:│}{1: }{5:││}{0:                      }|
-        --   {0:~    }{5:│}{2:~}{5:│}{2:~}{5:│┌──┐│}{2: }{5:││}{0:                      }|
-        --   {0:~    }{5:│}{2:~}{5:│}{2:~}{5:││}{1:  }{5:││}{2: }{5:││}{0:                      }|
-        --   {0:~    }{5:│}{2:~}{5:│}{2:~}{5:││}{2:~ }{5:││}{2: }{5:││}{0:                      }|
-        --   {0:~    }{5:│}{2:~}{5:│}{2:~}{5:└└──┘┘}{2: }{5:││}{0:                      }|
-        --                                           |
-        -- ]])
         screen:expect([[
           ^     {5:┌─┌─┌────┐─┐┐}                      |
           {0:~    }{5:│}{1: }{5:│}{1: }{5:│}{1:    }{5:│}{1: }{5:││}{0:                      }|
@@ -9485,7 +9495,7 @@ describe('float window', function()
           {0:~    }{5:│}{2:~}{5:│}{2:~}{5:││}{1:  }{5:││}{2: }{5:││}{0:                      }|
           {0:~    }{5:│}{2:~}{5:│}{2:~}{5:││}{2:~ }{5:││}{2: }{5:││}{0:                      }|
           {0:~    }{5:│}{2:~}{5:│}{2:~}{5:└└──┘┘}{2: }{5:││}{0:                      }|
-               {5:└─└────────┘┘}                      |
+                                                  |
         ]])
       end
       -- close the window with the highest zindex value
@@ -9519,20 +9529,12 @@ describe('float window', function()
           {5:└────┘}|
         ]], float_pos=expected_pos}
       else
-        -- TODO: Why is the border not terminated here, like the "terminates border on edge of viewport when window extends past viewport" test?
-        -- screen:expect([[
-        --   ^     {5:┌─┌─┌────┐─┐┐}                      |
-        --   {0:~    }{5:│}{1: }{5:│}{1: }{5:│}{1:    }{5:│}{1: }{5:││}{0:                      }|
-        --   {0:~    }{5:│}{2:~}{5:│}{2:~}{5:│}{2:~   }{5:│}{2: }{5:││}{0:                      }|*3
-        --   {0:~    }{5:│}{2:~}{5:│}{2:~}{5:└────┘}{2: }{5:││}{0:                      }|
-        --                                           |
-        -- ]])
         screen:expect([[
           ^     {5:┌─┌─┌────┐─┐┐}                      |
           {0:~    }{5:│}{1: }{5:│}{1: }{5:│}{1:    }{5:│}{1: }{5:││}{0:                      }|
           {0:~    }{5:│}{2:~}{5:│}{2:~}{5:│}{2:~   }{5:│}{2: }{5:││}{0:                      }|*3
           {0:~    }{5:│}{2:~}{5:│}{2:~}{5:└────┘}{2: }{5:││}{0:                      }|
-                 {5:└────────┘}                       |
+                                                  |
         ]])
       end
       -- with range
@@ -9561,18 +9563,11 @@ describe('float window', function()
           {5:└────────┘}|
         ]], float_pos=expected_pos}
       else
-        -- TODO: Why is the border not terminated here, like the "terminates border on edge of viewport when window extends past viewport" test?
-        -- screen:expect([[
-        --   ^     {5:┌─┌────────┐┐}                      |
-        --   {0:~    }{5:│}{1: }{5:│}{1:        }{5:││}{0:                      }|
-        --   {0:~    }{5:│}{2:~}{5:│}{2:~       }{5:││}{0:                      }|*4
-        --                                           |
-        -- ]])
         screen:expect([[
           ^     {5:┌─┌────────┐┐}                      |
           {0:~    }{5:│}{1: }{5:│}{1:        }{5:││}{0:                      }|
           {0:~    }{5:│}{2:~}{5:│}{2:~       }{5:││}{0:                      }|*4
-                 {5:└────────┘}                       |
+                                                  |
         ]])
       end
       -- with bang
@@ -9653,7 +9648,7 @@ describe('float window', function()
           {5:│}{1:^     }{5:│}|
           {5:└─────┘}|
         ]], float_pos={
-          [4] = {1001, "NW", 1, 100, 1, true, 300, 1, 4, 1};
+          [4] = {1001, "NW", 1, 100, 1, true, 300, 2, 4, 1};
         }, win_viewport={
           [2] = {win = 1000, topline = 0, botline = 2, curline = 0, curcol = 0, linecount = 1, sum_scroll_delta = 0};
           [4] = {win = 1001, topline = 0, botline = 1, curline = 0, curcol = 0, linecount = 1, sum_scroll_delta = 0};
@@ -9732,7 +9727,7 @@ describe('float window', function()
   end
 
   describe('with ext_multigrid', function()
-    -- with_ext_multigrid(true)
+    with_ext_multigrid(true)
   end)
   describe('without ext_multigrid', function()
     with_ext_multigrid(false)
