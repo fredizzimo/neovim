@@ -38,6 +38,7 @@
 #include "nvim/memory_defs.h"
 #include "nvim/menu.h"
 #include "nvim/message.h"
+#include "nvim/mouse.h"
 #include "nvim/move.h"
 #include "nvim/ops.h"
 #include "nvim/option.h"
@@ -1332,16 +1333,23 @@ static void pum_position_at_mouse(int min_width)
 /// Select the pum entry at the mouse position.
 static void pum_select_mouse_pos(void)
 {
-  if (mouse_grid == pum_grid.handle) {
-    pum_selected = mouse_row;
+  int grid = mouse_grid;
+  int row = mouse_row;
+  int col = mouse_col;
+
+  // find the window where the row is in
+  mouse_find_win(&grid, &row, &col);
+
+  if (grid == pum_grid.handle) {
+    pum_selected = row;
     return;
-  } else if (mouse_grid != pum_anchor_grid || mouse_col < pum_grid.comp_col
-             || mouse_col >= pum_grid.comp_col + pum_grid.comp_width) {
+  } else if (grid != pum_anchor_grid || col < pum_grid.comp_col
+             || col >= pum_grid.comp_col + pum_grid.comp_width) {
     pum_selected = -1;
     return;
   }
 
-  int idx = mouse_row - pum_grid.comp_row;
+  int idx = row - pum_grid.comp_row;
 
   if (idx < 0 || idx >= pum_grid.comp_height) {
     pum_selected = -1;

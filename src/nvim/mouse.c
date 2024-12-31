@@ -1747,18 +1747,25 @@ static win_T *mouse_find_grid_win(int *gridp, int *rowp, int *colp)
     }
   } else if (*gridp == 0) {
     ScreenGrid *grid = ui_comp_mouse_focus(*rowp, *colp);
-    FOR_ALL_WINDOWS_IN_TAB(wp, curtab) {
-      if (&wp->w_grid_alloc != grid) {
-        continue;
-      }
+    if (grid == &pum_grid) {
       *gridp = grid->handle;
-      *rowp -= grid->comp_row + wp->w_grid.row_offset;
-      *colp -= grid->comp_col + wp->w_grid.col_offset;
-      return wp;
+      *rowp -= grid->comp_row + grid->row_offset;
+      *colp -= grid->comp_col + grid->col_offset;
+      // TODO(fredizzimo): Does the popup have a window?
+      return NULL;
+    } else {
+      FOR_ALL_WINDOWS_IN_TAB(wp, curtab) {
+        if (&wp->w_grid_alloc != grid) {
+          continue;
+        }
+        *gridp = grid->handle;
+        *rowp -= grid->comp_row + wp->w_grid.row_offset;
+        *colp -= grid->comp_col + wp->w_grid.col_offset;
+        return wp;
+      }
     }
 
     // no float found, click on the default grid
-    // TODO(bfredl): grid can be &pum_grid, allow select pum items by mouse?
     *gridp = DEFAULT_GRID_HANDLE;
   }
   return NULL;
