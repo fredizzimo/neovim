@@ -1337,8 +1337,9 @@ static void pum_select_mouse_pos(void)
   int row = mouse_row;
   int col = mouse_col;
 
-  // find the window where the row is in
-  mouse_find_win(&grid, &row, &col);
+  if (grid == 0) {
+    mouse_find_win(&grid, &row, &col);
+  }
 
   if (grid == pum_grid.handle) {
     pum_selected = row;
