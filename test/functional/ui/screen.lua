@@ -1117,9 +1117,8 @@ function Screen:_handle_flush()
         self.popupmenu = vim.deepcopy(self._popupmenu)
         self.popupmenu.anchor = {
           1,
-          -- TODO: This is wrong, we should need to add startrow and startcol
-          self._popupmenu.anchor[2],
-          self._popupmenu.anchor[3],
+          self._popupmenu.anchor[2] + position.startrow,
+          self._popupmenu.anchor[3] + position.startcol,
         }
       end
       if igrid > 1 then
