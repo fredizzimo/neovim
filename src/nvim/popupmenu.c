@@ -171,15 +171,17 @@ void pum_display(pumitem_T *array, int size, int selected, bool array_changed, i
       pum_anchor_grid = (int)curwin->w_grid.target->handle;
       pum_win_row += curwin->w_grid.row_offset;
       cursor_col += curwin->w_grid.col_offset;
+      pum_win_row_offset = 0;
+      pum_win_col_offset = 0;
       if (curwin->w_grid.target != &default_grid) {
-        //pum_anchor_grid = (int)default_grid.handle;
         pum_win_row += curwin->w_winrow;
         cursor_col += curwin->w_wincol;
-        pum_win_row_offset = curwin->w_winrow;
-        pum_win_col_offset = curwin->w_wincol;
-      } else {
-        pum_win_row_offset = 0;
-        pum_win_col_offset = 0;
+        if (!ui_has(kUIMultigrid)) {
+          pum_anchor_grid = (int)default_grid.handle;
+        } else {
+          pum_win_row_offset = curwin->w_winrow;
+          pum_win_col_offset = curwin->w_wincol;
+        }
       }
     }
 
@@ -195,7 +197,8 @@ void pum_display(pumitem_T *array, int size, int selected, bool array_changed, i
           ADD_C(item, CSTR_AS_OBJ(array[i].pum_info));
           ADD_C(arr, ARRAY_OBJ(item));
         }
-        ui_call_popupmenu_show(arr, selected, pum_win_row, cursor_col,
+        ui_call_popupmenu_show(arr, selected, pum_win_row - pum_win_row_offset,
+                               cursor_col - pum_win_col_offset,
                                pum_anchor_grid);
         arena_mem_free(arena_finish(&arena));
       } else {
