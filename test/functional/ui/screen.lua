@@ -83,11 +83,14 @@ end
 --- @field cmdline_block table[]
 --- @field hl_groups table<string,integer>
 --- @field messages table<integer,table>
+--- @field win_viewport_margins table<integer,table>
 --- @field private _cursor {grid:integer,row:integer,col:integer}
+--- @field private _composed_cursor {grid:integer,row:integer,col:integer}
 --- @field private _grids table<integer,test.functional.ui.screen.Grid>
 --- @field private _grid_win_extmarks table<integer,table>
 --- @field private _attr_table table<integer,table>
 --- @field private _hl_info table<integer,table>
+--- @field private msg_grid_pos integer
 local Screen = {}
 Screen.__index = Screen
 
@@ -1035,7 +1038,7 @@ function Screen:blend(cell, cell_below, attr_hash, through)
       new_attr[1].foreground = rgb_blend(rgb.blend, below_foreground, current_background)
       text = cell_below.text
       if below_attr[1].underline then
-        -- TODO: Blend special
+        -- TODO: Blend special (no failing unit test yet)
       else
         new_attr[1].special = nil
       end
@@ -1044,7 +1047,7 @@ function Screen:blend(cell, cell_below, attr_hash, through)
         rgb_blend(math.floor(rgb.blend / 2), below_foreground, current_foreground)
 
       if attr[1].underground then
-        -- TODO: Blend special
+        -- TODO: Blend special (no failing unit test yet)
       else
         new_attr[1].special = nil
       end
@@ -1078,6 +1081,7 @@ function Screen:_handle_flush()
   end
   local cursor = self._cursor
 
+  ---@type table<string,integer>
   local attr_hash = {}
   for i, v in pairs(self._attr_table) do
     attr_hash[hl_hash(v)] = i
@@ -1145,11 +1149,19 @@ function Screen:_handle_flush()
       if height > current_grid.height then
         height = current_grid.height
       end
+      ---@return integer
       local function get_margin_dest(start, dim, max_dim, margin)
         local max_win = math.min(start + dim, max_dim)
         return max_win - margin + 1
       end
 
+      ---@param start integer
+      ---@param i integer
+      ---@param margin_dest integer
+      ---@param margin integer
+      ---@param dim integer
+      ---@param max_dim integer
+      ---@return integer, integer
       local function get_dest_and_max(start, i, margin_dest, margin, dim, max_dim)
         -- marigin_index is greater or equal to 1 for margin cells
         local margin_index = i - (dim - margin)
@@ -1163,7 +1175,6 @@ function Screen:_handle_flush()
         end
       end
 
-      -- TODO Left and top margins (maybe untested)
       local bottom_margin_dest =
         get_margin_dest(position.startrow, height, screen_height, margins.bottom)
       local right_margin_dest =
@@ -1851,6 +1862,7 @@ function Screen:redraw_debug(timeout)
   run_session(self._session, nil, notification_cb, nil, timeout)
 end
 
+---@return fun(): (integer, test.functional.ui.screen.Grid)
 function Screen:sort_grids()
   local compindex = 8
   local keys = {}
