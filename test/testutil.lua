@@ -884,8 +884,13 @@ end
 
 --- @param linegrid? boolean
 function M.skip_forced_multigrid_non_linegrid(linegrid)
-  local reason = 'linegrid has to be enabled with multigrid'
+  local reason = 'Linegrid has to be enabled with multigrid'
   M.skip_forced_mulitgrid(reason, not linegrid, 3)
+end
+
+function M.skip_forced_multigrid_tui()
+  local reason = 'The TUI does not support multigrid'
+  M.skip_forced_mulitgrid(reason, nil, 3)
 end
 
 return M

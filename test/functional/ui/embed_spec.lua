@@ -37,7 +37,7 @@ local function test_embed(ext_linegrid)
   end
 
   it('can display errors', function()
-    t.skip_forced_mulitgrid('The TUI does not support multigrid')
+    t.skip_forced_multigrid_tui()
     startup('--cmd', 'echoerr invalid+')
     screen:expect([[
                                                                   |*4
@@ -56,7 +56,7 @@ local function test_embed(ext_linegrid)
   end)
 
   it("doesn't erase output when setting color scheme", function()
-    t.skip_forced_mulitgrid('The TUI does not support multigrid')
+    t.skip_forced_multigrid_tui()
     if t.is_os('openbsd') then
       pending('FIXME #10804')
     end
@@ -72,7 +72,7 @@ local function test_embed(ext_linegrid)
   end)
 
   it("doesn't erase output when setting Normal colors", function()
-    t.skip_forced_mulitgrid('The TUI does not support multigrid')
+    t.skip_forced_multigrid_tui()
     startup('--cmd', 'echoerr "foo"', '--cmd', 'hi Normal guibg=Green', '--cmd', 'echoerr "bar"')
     screen:expect {
       grid = [[
@@ -104,7 +104,7 @@ describe('--embed UI', function()
   end)
 
   it('can pass stdin', function()
-    t.skip_forced_mulitgrid('The TUI does not support multigrid')
+    t.skip_forced_multigrid_tui()
     local pipe = assert(uv.pipe())
 
     local writer = assert(uv.new_pipe(false))
@@ -146,7 +146,7 @@ describe('--embed UI', function()
   end)
 
   it('can pass stdin to -q - #17523', function()
-    t.skip_forced_mulitgrid('The TUI does not support multigrid')
+    t.skip_forced_multigrid_tui()
     write_file(
       'Xbadfile.c',
       [[
@@ -204,7 +204,7 @@ describe('--embed UI', function()
   end)
 
   it('only sets background colors once even if overridden', function()
-    t.skip_forced_mulitgrid('The TUI does not support multigrid')
+    t.skip_forced_multigrid_tui()
     local screen, current, seen
     local function handle_default_colors_set(_, _, rgb_bg, _, _, _)
       seen[rgb_bg] = true
@@ -241,7 +241,7 @@ describe('--embed UI', function()
   end)
 
   it('updates cwd of attached UI #21771', function()
-    t.skip_forced_mulitgrid('The TUI does not support multigrid')
+    t.skip_forced_multigrid_tui()
     clear { args_rm = { '--headless' } }
 
     local screen = Screen.new(40, 8)
@@ -293,7 +293,7 @@ end)
 
 describe('--embed --listen UI', function()
   it('waits for connection on listening address', function()
-    t.skip_forced_mulitgrid('The TUI does not support multigrid')
+    t.skip_forced_multigrid_tui()
     t.skip(t.is_os('win'))
     clear()
     local child_server = assert(n.new_pipename())
