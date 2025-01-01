@@ -1107,7 +1107,6 @@ function Screen:_handle_flush()
             hl_id = group,
           }
           for i = 1, #grid.rows[1] do
-
             local bg_cell = background_grid.rows[self.msg_grid_pos][i]
             local cell = self:blend(separator, bg_cell, attr_hash, self.msg_sep_char == ' ')
             grid.rows[self.msg_grid_pos][i] = cell
