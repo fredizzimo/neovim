@@ -1073,6 +1073,9 @@ function Screen:blend(cell, cell_below, attr_hash, through)
 end
 
 function Screen:_handle_flush()
+  if not self.forced_multigrid then
+    return
+  end
   local cursor = self._cursor
   if not self._options.ext_multigrid then
     local attr_hash = {}
@@ -1918,8 +1921,9 @@ end
 function Screen:render(headers, attr_state, preview)
   headers = headers and (self._options.ext_multigrid or self._options._debug_float)
   local rv = {}
-  local cursor = self._options.ext_multigrid and self._cursor or self._composed_cursor
-  local grids = self._options.ext_multigrid and self._grids or self._composed_grids
+  local forced = self.forced_multigrid and not self._options.ext_multigrid
+  local cursor = forced and self._composed_cursor or self._cursor
+  local grids = forced and self._composed_grids or self._grids
 
   for igrid, grid in vim.spairs(grids) do
     if headers then
