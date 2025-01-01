@@ -176,6 +176,7 @@ void pum_display(pumitem_T *array, int size, int selected, bool array_changed, i
       if (curwin->w_grid.target != &default_grid) {
         pum_win_row += curwin->w_winrow;
         cursor_col += curwin->w_wincol;
+        // ext_popupmenu should always anchor to the default grid when multigrid is disabled
         if (!ui_has(kUIMultigrid)) {
           pum_anchor_grid = (int)default_grid.handle;
         } else {
@@ -230,17 +231,6 @@ void pum_display(pumitem_T *array, int size, int selected, bool array_changed, i
     int max_col = Columns;
     int win_start_col = curwin->w_wincol;
     int win_end_col = W_ENDCOL(curwin);
-    /*
-       if (!(State & MODE_CMDLINE) && ui_has(kUIMultigrid)) {
-       above_row -= curwin->w_winrow;
-       below_row = MAX(below_row - curwin->w_winrow, curwin->w_grid.rows);
-       min_row = -curwin->w_winrow;
-       min_col = -curwin->w_wincol;
-       max_col = MAX(Columns - curwin->w_wincol, curwin->w_grid.cols);
-       win_start_col = 0;
-       win_end_col = curwin->w_grid.cols;
-       }
-     */
 
     // Figure out the size and position of the pum.
     pum_height = MIN(size, PUM_DEF_HEIGHT);
