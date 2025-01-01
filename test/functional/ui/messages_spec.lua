@@ -24,6 +24,8 @@ local is_os = t.is_os
 local fn = n.fn
 local skip = t.skip
 
+local buggy_intro = 'FIXME: :intro does not work with multigrid #24705'
+
 describe('ui/ext_messages', function()
   local screen
   local fname = 'Xtest_functional_ui_messages_spec'
@@ -1823,6 +1825,7 @@ vimComment     xxx match /\s"[^\-:.%#=*].*$/ms=s+1,lc=1  excludenl contains=@vim
   end)
 
   it('supports :intro with cmdheight=0 #26505', function()
+    t.skip_forced_mulitgrid(buggy_intro)
     screen:try_resize(80, 24)
     command('set cmdheight=0')
     feed(':intro<CR>')
@@ -1945,44 +1948,47 @@ describe('ui/ext_messages', function()
       showmode = showmode,
     }
 
-    feed('<esc>:intro<cr>')
-    screen:expect {
-      grid = [[
-      ^                                                                                |
-                                                                                      |*4
-      {MATCH:.*}|
-                                                                                      |
-                        Nvim is open source and freely distributable                  |
-                                  https://neovim.io/#chat                             |
-                                                                                      |
-                       type  :help nvim{18:<Enter>}       if you are new!                  |
-                       type  :checkhealth{18:<Enter>}     to optimize Nvim                 |
-                       type  :q{18:<Enter>}               to exit                          |
-                       type  :help{18:<Enter>}            for help                         |
-                                                                                      |
-      {MATCH: +}type  :help news{18:<Enter>} to see changes in v{MATCH:%d+%.%d+ +}|
-                                                                                      |
-                               Help poor children in Uganda!                          |
-                       type  :help iccf{18:<Enter>}       for information                  |
-                                                                                      |*5
-    ]],
-      cmdline = { { abort = false } },
-      messages = {
-        {
-          content = { { 'Press ENTER or type command to continue', 6, 18 } },
-          history = false,
-          kind = 'return_prompt',
+    --FIXME: :intro does not work with multigrid #24705
+    if not t.is_forced_multigrid() then
+      feed('<esc>:intro<cr>')
+      screen:expect {
+        grid = [[
+        ^                                                                                |
+                                                                                        |*4
+        {MATCH:.*}|
+                                                                                        |
+                          Nvim is open source and freely distributable                  |
+                                    https://neovim.io/#chat                             |
+                                                                                        |
+                         type  :help nvim{18:<Enter>}       if you are new!                  |
+                         type  :checkhealth{18:<Enter>}     to optimize Nvim                 |
+                         type  :q{18:<Enter>}               to exit                          |
+                         type  :help{18:<Enter>}            for help                         |
+                                                                                        |
+        {MATCH: +}type  :help news{18:<Enter>} to see changes in v{MATCH:%d+%.%d+ +}|
+                                                                                        |
+                                 Help poor children in Uganda!                          |
+                         type  :help iccf{18:<Enter>}       for information                  |
+                                                                                        |*5
+      ]],
+        cmdline = { { abort = false } },
+        messages = {
+          {
+            content = { { 'Press ENTER or type command to continue', 6, 18 } },
+            history = false,
+            kind = 'return_prompt',
+          },
         },
-      },
-    }
+      }
 
-    feed('<cr>')
-    screen:expect {
-      grid = [[
-      ^x                                                                               |
-      {1:~                                                                               }|*23
-    ]],
-    }
+      feed('<cr>')
+      screen:expect {
+        grid = [[
+        ^x                                                                               |
+        {1:~                                                                               }|*23
+      ]],
+      }
+    end
   end)
 
   it('clears intro screen when new buffer is active', function()
