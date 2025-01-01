@@ -157,6 +157,7 @@ void nvim_ui_attach(uint64_t channel_id, Integer width, Integer height, Dict opt
       return;
     }
   }
+
   if (ui->ui_ext[kUIHlState] || ui->ui_ext[kUIMultigrid]) {
     ui->ui_ext[kUILinegrid] = true;
   }
