@@ -1073,166 +1073,165 @@ function Screen:blend(cell, cell_below, attr_hash, through)
 end
 
 function Screen:_handle_flush()
-  if not self.forced_multigrid then
+  if not (self.forced_multigrid and not self._options.ext_multigrid) then
     return
   end
   local cursor = self._cursor
-  if not self._options.ext_multigrid then
-    local attr_hash = {}
-    for i, v in pairs(self._attr_table) do
-      attr_hash[hl_hash(v)] = i
+
+  local attr_hash = {}
+  for i, v in pairs(self._attr_table) do
+    attr_hash[hl_hash(v)] = i
+  end
+
+  local screen_width = self._grids[1].width
+  local screen_height = self._grids[1].height
+  local background_grid = vim.deepcopy(self._grids[1], true)
+  local grid = vim.deepcopy(self._grids[1], true)
+  for igrid, current_grid in self:sort_grids() do
+    local hidden = igrid > 1
+        and (self.win_position[igrid] == nil and self.float_pos[igrid] == nil and self.msg_grid ~= igrid)
+      or (self.float_pos[igrid] and self.float_pos[igrid].external)
+    if hidden then
+      goto continue
     end
 
-    local screen_width = self._grids[1].width
-    local screen_height = self._grids[1].height
-    local background_grid = vim.deepcopy(self._grids[1], true)
-    local grid = vim.deepcopy(self._grids[1], true)
-    for igrid, current_grid in self:sort_grids() do
-      local hidden = igrid > 1
-          and (self.win_position[igrid] == nil and self.float_pos[igrid] == nil and self.msg_grid ~= igrid)
-        or (self.float_pos[igrid] and self.float_pos[igrid].external)
-      if hidden then
-        goto continue
+    local is_background = not self.float_pos[igrid] and self.msg_grid ~= igrid
+
+    local position = self:get_position(igrid)
+    local height = position.height
+    local width = position.width
+
+    if igrid == self.msg_grid then
+      height = self._grids[1].height - self.msg_grid_pos
+      if height > 1 and self.msg_scrolled and self.msg_grid_pos > 0 then
+        local group = self.hl_groups['MsgSeparator']
+        local separator = {
+          text = self.msg_sep_char,
+          hl_id = group,
+        }
+        for i = 1, #grid.rows[1] do
+          local bg_cell = background_grid.rows[self.msg_grid_pos][i]
+          local cell = self:blend(separator, bg_cell, attr_hash, self.msg_sep_char == ' ')
+          grid.rows[self.msg_grid_pos][i] = cell
+        end
       end
-
-      local is_background = not self.float_pos[igrid] and self.msg_grid ~= igrid
-
-      local position = self:get_position(igrid)
-      local height = position.height
-      local width = position.width
-
+    end
+    if cursor.grid == igrid then
+      self._composed_cursor.row = cursor.row + position.startrow
+      self._composed_cursor.col = cursor.col + position.startcol
+      self._composed_cursor.grid = 1
+    end
+    if self._popupmenu and self._popupmenu.anchor[1] == igrid then
+      self.popupmenu = vim.deepcopy(self._popupmenu)
+      self.popupmenu.anchor = {
+        1,
+        self._popupmenu.anchor[2] + position.startrow,
+        self._popupmenu.anchor[3] + position.startcol,
+      }
+    end
+    if igrid > 1 then
       if igrid == self.msg_grid then
         height = self._grids[1].height - self.msg_grid_pos
-        if height > 1 and self.msg_scrolled and self.msg_grid_pos > 0 then
-          local group = self.hl_groups['MsgSeparator']
-          local separator = {
-            text = self.msg_sep_char,
-            hl_id = group,
-          }
-          for i = 1, #grid.rows[1] do
-            local bg_cell = background_grid.rows[self.msg_grid_pos][i]
-            local cell = self:blend(separator, bg_cell, attr_hash, self.msg_sep_char == ' ')
-            grid.rows[self.msg_grid_pos][i] = cell
-          end
-        end
       end
-      if cursor.grid == igrid then
-        self._composed_cursor.row = cursor.row + position.startrow
-        self._composed_cursor.col = cursor.col + position.startcol
-        self._composed_cursor.grid = 1
-      end
-      if self._popupmenu and self._popupmenu.anchor[1] == igrid then
-        self.popupmenu = vim.deepcopy(self._popupmenu)
-        self.popupmenu.anchor = {
-          1,
-          self._popupmenu.anchor[2] + position.startrow,
-          self._popupmenu.anchor[3] + position.startcol,
+      local margins = self.win_viewport_margins[igrid]
+      if not margins then
+        margins = {
+          left = 0,
+          right = 0,
+          top = 0,
+          bottom = 0,
         }
       end
-      if igrid > 1 then
-        if igrid == self.msg_grid then
-          height = self._grids[1].height - self.msg_grid_pos
-        end
-        local margins = self.win_viewport_margins[igrid]
-        if not margins then
-          margins = {
-            left = 0,
-            right = 0,
-            top = 0,
-            bottom = 0,
-          }
-        end
-        if height > current_grid.height then
-          height = current_grid.height
-        end
-        local function get_margin_dest(start, dim, max_dim, margin)
-          local max_win = math.min(start + dim, max_dim)
-          return max_win - margin + 1
-        end
+      if height > current_grid.height then
+        height = current_grid.height
+      end
+      local function get_margin_dest(start, dim, max_dim, margin)
+        local max_win = math.min(start + dim, max_dim)
+        return max_win - margin + 1
+      end
 
-        local function get_dest_and_max(start, i, margin_dest, margin, dim, max_dim)
-          -- marigin_index is greater or equal to 1 for margin cells
-          local margin_index = i - (dim - margin)
-          if margin_index >= 1 then
-            local dest = margin_dest + margin_index - 1
-            return dest, max_dim
-          else
-            local dest = start + i
-            local max_dest = margin_dest - 1
-            return dest, max_dest
-          end
+      local function get_dest_and_max(start, i, margin_dest, margin, dim, max_dim)
+        -- marigin_index is greater or equal to 1 for margin cells
+        local margin_index = i - (dim - margin)
+        if margin_index >= 1 then
+          local dest = margin_dest + margin_index - 1
+          return dest, max_dim
+        else
+          local dest = start + i
+          local max_dest = margin_dest - 1
+          return dest, max_dest
         end
+      end
 
-        -- TODO Left and top margins (maybe untested)
-        local bottom_margin_dest =
-          get_margin_dest(position.startrow, height, screen_height, margins.bottom)
-        local right_margin_dest =
-          get_margin_dest(position.startcol, width, screen_width, margins.right)
-        for i = 1, height do
-          local dest_row, max_dest_row = get_dest_and_max(
-            position.startrow,
-            i,
-            bottom_margin_dest,
-            margins.bottom,
-            height,
-            screen_height
-          )
-          if dest_row >= 1 and dest_row <= max_dest_row then
-            local content = current_grid.rows[i]
-            local prev_empty = false
-            for j, v in ipairs(content) do
-              local dest_col, max_dest_col = get_dest_and_max(
-                position.startcol,
-                j,
-                right_margin_dest,
-                margins.right,
-                width,
-                screen_width
-              )
-              if dest_col >= 1 and dest_col <= max_dest_col then
-                if is_background then
-                  background_grid.rows[dest_row][dest_col] = v
-                  grid.rows[dest_row][dest_col] = vim.deepcopy(v)
-                else
-                  local bg_cell = background_grid.rows[dest_row][dest_col]
-                  local current_empty = v.text == ' '
-                  local next_empty = j == #content or content[j + 1].text == ' '
-                  local through = current_empty
-                  if bg_cell.text == '' and not prev_empty then
-                    through = false
-                  end
-                  local last_screen_col = dest_col == #background_grid.rows[dest_row]
-                  if
-                    not last_screen_col
-                    and background_grid.rows[dest_row][dest_col + 1].text == ''
-                    and not next_empty
-                  then
-                    through = false
-                  end
-                  prev_empty = current_empty
+      -- TODO Left and top margins (maybe untested)
+      local bottom_margin_dest =
+        get_margin_dest(position.startrow, height, screen_height, margins.bottom)
+      local right_margin_dest =
+        get_margin_dest(position.startcol, width, screen_width, margins.right)
+      for i = 1, height do
+        local dest_row, max_dest_row = get_dest_and_max(
+          position.startrow,
+          i,
+          bottom_margin_dest,
+          margins.bottom,
+          height,
+          screen_height
+        )
+        if dest_row >= 1 and dest_row <= max_dest_row then
+          local content = current_grid.rows[i]
+          local prev_empty = false
+          for j, v in ipairs(content) do
+            local dest_col, max_dest_col = get_dest_and_max(
+              position.startcol,
+              j,
+              right_margin_dest,
+              margins.right,
+              width,
+              screen_width
+            )
+            if dest_col >= 1 and dest_col <= max_dest_col then
+              if is_background then
+                background_grid.rows[dest_row][dest_col] = v
+                grid.rows[dest_row][dest_col] = vim.deepcopy(v)
+              else
+                local bg_cell = background_grid.rows[dest_row][dest_col]
+                local current_empty = v.text == ' '
+                local next_empty = j == #content or content[j + 1].text == ' '
+                local through = current_empty
+                if bg_cell.text == '' and not prev_empty then
+                  through = false
+                end
+                local last_screen_col = dest_col == #background_grid.rows[dest_row]
+                if
+                  not last_screen_col
+                  and background_grid.rows[dest_row][dest_col + 1].text == ''
+                  and not next_empty
+                then
+                  through = false
+                end
+                prev_empty = current_empty
 
-                  local cell = self:blend(v, bg_cell, attr_hash, through)
-                  grid.rows[dest_row][dest_col] = cell
-                  if background_grid.rows[dest_row][dest_col].text == '' and j == 1 then
-                    grid.rows[dest_row][dest_col - 1].text = ' '
-                  end
-                  if
-                    not last_screen_col
-                    and background_grid.rows[dest_row][dest_col + 1].text == ''
-                    and j == #content
-                  then
-                    grid.rows[dest_row][dest_col + 1].text = ' '
-                  end
+                local cell = self:blend(v, bg_cell, attr_hash, through)
+                grid.rows[dest_row][dest_col] = cell
+                if background_grid.rows[dest_row][dest_col].text == '' and j == 1 then
+                  grid.rows[dest_row][dest_col - 1].text = ' '
+                end
+                if
+                  not last_screen_col
+                  and background_grid.rows[dest_row][dest_col + 1].text == ''
+                  and j == #content
+                then
+                  grid.rows[dest_row][dest_col + 1].text = ' '
                 end
               end
             end
           end
         end
       end
-      ::continue::
     end
-    self._composed_grids = { grid }
+    ::continue::
   end
+  self._composed_grids = { grid }
 end
 
 function Screen:_reset()
