@@ -12,7 +12,9 @@ local eval = n.eval
 local eq = t.eq
 local is_os = t.is_os
 local api = n.api
-local skip = t.skip
+
+local broken_c_c = 'fixme: C-c closes the commandline window #31811'
+local non_linegrid_unsupported = 'linegrid has to be enabled with multigrid'
 
 local function test_cmdline(linegrid)
   local screen
@@ -23,6 +25,7 @@ local function test_cmdline(linegrid)
   end)
 
   it('works', function()
+    t.skip_forced_mulitgrid(non_linegrid_unsupported, not linegrid)
     feed(':')
     screen:expect {
       grid = [[
@@ -97,6 +100,7 @@ local function test_cmdline(linegrid)
   end)
 
   it('works with input()', function()
+    t.skip_forced_mulitgrid(non_linegrid_unsupported, not linegrid)
     feed(':call input("input", "default")<cr>')
     screen:expect({
       grid = [[
@@ -126,6 +130,7 @@ local function test_cmdline(linegrid)
   end)
 
   it('works with special chars and nested cmdline', function()
+    t.skip_forced_mulitgrid(non_linegrid_unsupported, not linegrid)
     feed(':xx<c-r>')
     screen:expect {
       grid = [[
@@ -230,6 +235,7 @@ local function test_cmdline(linegrid)
   end)
 
   it('works with function definitions', function()
+    t.skip_forced_mulitgrid(non_linegrid_unsupported, not linegrid)
     feed(':function Foo()<cr>')
     screen:expect {
       grid = [[
@@ -336,7 +342,7 @@ local function test_cmdline(linegrid)
   end)
 
   it('works with cmdline window', function()
-    skip('c-c is broken and closes the window')
+    t.skip_forced_mulitgrid(broken_c_c)
     feed(':make')
     screen:expect {
       grid = [[
@@ -453,6 +459,7 @@ local function test_cmdline(linegrid)
   end)
 
   it('works with inputsecret()', function()
+    t.skip_forced_mulitgrid(non_linegrid_unsupported, not linegrid)
     feed(":call inputsecret('secret:')<cr>abc123")
     screen:expect {
       grid = [[
@@ -472,6 +479,7 @@ local function test_cmdline(linegrid)
   end)
 
   it('works with highlighted cmdline', function()
+    t.skip_forced_mulitgrid(non_linegrid_unsupported, not linegrid)
     source([[
       highlight RBP1 guibg=Red
       highlight RBP2 guibg=Yellow
@@ -524,6 +532,7 @@ local function test_cmdline(linegrid)
   end)
 
   it('works together with ext_wildmenu', function()
+    t.skip_forced_mulitgrid(non_linegrid_unsupported, not linegrid)
     local expected = {
       'define',
       'jump',
@@ -627,6 +636,7 @@ local function test_cmdline(linegrid)
   end)
 
   it('works together with ext_popupmenu', function()
+    t.skip_forced_mulitgrid(non_linegrid_unsupported, not linegrid)
     local expected = {
       { 'define', '', '', '' },
       { 'jump', '', '', '' },
@@ -753,6 +763,7 @@ local function test_cmdline(linegrid)
   end)
 
   it('ext_wildmenu takes precedence over ext_popupmenu', function()
+    t.skip_forced_mulitgrid(non_linegrid_unsupported, not linegrid)
     local expected = {
       'define',
       'jump',
@@ -787,6 +798,7 @@ local function test_cmdline(linegrid)
   end)
 
   it("doesn't send invalid events when aborting mapping #10000", function()
+    t.skip_forced_mulitgrid(non_linegrid_unsupported, not linegrid)
     command('set notimeout')
     command('cnoremap ab c')
 
@@ -821,6 +833,7 @@ local function test_cmdline(linegrid)
   end)
 
   it('does not move cursor to curwin #20309', function()
+    t.skip_forced_mulitgrid(non_linegrid_unsupported, not linegrid)
     local win = api.nvim_get_current_win()
     command('norm icmdlinewin')
     command('new')
@@ -845,6 +858,7 @@ local function test_cmdline(linegrid)
   end)
 
   it('show prompt hl_id', function()
+    t.skip_forced_mulitgrid(non_linegrid_unsupported, not linegrid)
     screen:expect([[
       ^                         |
       {1:~                        }|*3
@@ -875,8 +889,7 @@ describe('ui/ext_cmdline', function()
   test_cmdline(true)
 end)
 describe('ui/ext_cmdline (legacy highlights)', function()
-  -- Old char grid is unsupported now
-  --test_cmdline(false)
+  test_cmdline(false)
 end)
 
 describe('cmdline redraw', function()
@@ -940,7 +953,7 @@ describe('cmdline redraw', function()
   end)
 
   it('after pressing Ctrl-C in cmdwin in Visual mode #18967', function()
-    skip('c-c is broken and closes the window')
+    t.skip_forced_mulitgrid(broken_c_c)
     screen:try_resize(40, 10)
     command('set cmdwinheight=3')
     feed('q:iabc<Esc>vhh')
