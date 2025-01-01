@@ -904,4 +904,9 @@ function M.skip_forced_multigrid_command_c_c()
   M.skip_forced_mulitgrid(reason, nil, 3)
 end
 
+function M.skip_forced_multigrid_intro()
+  local reason = 'FIXME: :intro does not work with multigrid #24705'
+  M.skip_forced_mulitgrid(reason, nil, 3)
+end
+
 return M

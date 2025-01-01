@@ -24,8 +24,6 @@ local is_os = t.is_os
 local fn = n.fn
 local skip = t.skip
 
-local buggy_intro = 'FIXME: :intro does not work with multigrid #24705'
-
 describe('ui/ext_messages', function()
   local screen
   local fname = 'Xtest_functional_ui_messages_spec'
@@ -1825,7 +1823,7 @@ vimComment     xxx match /\s"[^\-:.%#=*].*$/ms=s+1,lc=1  excludenl contains=@vim
   end)
 
   it('supports :intro with cmdheight=0 #26505', function()
-    t.skip_forced_mulitgrid(buggy_intro)
+    t.skip_forced_multigrid_intro()
     screen:try_resize(80, 24)
     command('set cmdheight=0')
     feed(':intro<CR>')
