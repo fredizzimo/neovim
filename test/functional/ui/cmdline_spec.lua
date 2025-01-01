@@ -13,8 +13,6 @@ local eq = t.eq
 local is_os = t.is_os
 local api = n.api
 
-local broken_c_c = 'fixme: C-c closes the commandline window #31811'
-
 local function test_cmdline(linegrid)
   local screen
 
@@ -341,7 +339,7 @@ local function test_cmdline(linegrid)
   end)
 
   it('works with cmdline window', function()
-    t.skip_forced_mulitgrid(broken_c_c)
+    t.skip_forced_multigrid_inccomand_split()
     feed(':make')
     screen:expect {
       grid = [[
@@ -952,7 +950,7 @@ describe('cmdline redraw', function()
   end)
 
   it('after pressing Ctrl-C in cmdwin in Visual mode #18967', function()
-    t.skip_forced_mulitgrid(broken_c_c)
+    t.skip_forced_multigrid_inccomand_split()
     screen:try_resize(40, 10)
     command('set cmdwinheight=3')
     feed('q:iabc<Esc>vhh')

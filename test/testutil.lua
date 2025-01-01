@@ -899,4 +899,9 @@ function M.skip_forced_multigrid_inccomand_split(cond)
   M.skip_forced_mulitgrid(reason, cond, 3)
 end
 
+function M.skip_forced_multigrid_command_c_c()
+  local reason = 'FIXME: C-c closes the commandline window #31811'
+  M.skip_forced_mulitgrid(reason, nil, 3)
+end
+
 return M

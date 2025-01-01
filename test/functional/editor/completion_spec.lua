@@ -10,7 +10,6 @@ local fn = n.fn
 local command = n.command
 local api = n.api
 local poke_eventloop = n.poke_eventloop
-local broken_c_c = 'fixme: C-c closes the commandline window #31811'
 
 describe('completion', function()
   local screen
@@ -955,7 +954,7 @@ describe('completion', function()
 
   describe('from the commandline window', function()
     it('is cleared after CTRL-C', function()
-      t.skip_forced_mulitgrid(broken_c_c)
+      t.skip_forced_multigrid_command_c_c()
       feed('q:')
       feed('ifoo faa fee f')
       screen:expect([[
