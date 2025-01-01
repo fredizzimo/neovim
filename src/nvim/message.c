@@ -231,11 +231,11 @@ void msg_grid_validate(void)
     if (diff > 0) {
       grid_clear(&msg_grid_adj, Rows - diff, Rows, 0, Columns, HL_ATTR(HLF_MSG));
     }
-  } else if (msg_grid.chars && !msg_grid.throttled) {
+  } else if (ui_has(kUIMultigrid) && msg_grid.chars && !msg_grid.throttled) {
     // The composition index might have changed
     ui_ext_msg_set_pos(msg_grid_pos, msg_scrolled);
   }
-  if (msg_grid.chars) {
+  if (ui_has(kUIMultigrid) && msg_grid.chars) {
     ui_call_grid_resize(msg_grid.handle, msg_grid.cols, msg_grid.rows);
   }
   msg_grid_adj.cols = Columns;
