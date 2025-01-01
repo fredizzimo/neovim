@@ -61,8 +61,6 @@ local long_multiline_text = [[
   t œ ¥
 ]]
 
-local buggy_split = 'FIXME: Inccommand split does not work with multigrid #24802'
-
 local function common_setup(screen, inccommand, text)
   if screen then
     command('syntax on')
@@ -92,7 +90,7 @@ describe(':substitute, inccommand=split interactivity', function()
   -- Test the tests: verify that the `1==bufnr('$')` assertion
   -- in the "no preview" tests (below) actually means something.
   it('previews interactive cmdline', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     feed(':%s/tw/MO/g')
     retry(nil, 1000, function()
       eq(2, eval("bufnr('$')"))
@@ -100,7 +98,7 @@ describe(':substitute, inccommand=split interactivity', function()
   end)
 
   it('no preview if invoked by a script', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     source('%s/tw/MO/g')
     poke_eventloop()
     eq(1, eval("bufnr('$')"))
@@ -109,7 +107,7 @@ describe(':substitute, inccommand=split interactivity', function()
   end)
 
   it('no preview if invoked by feedkeys()', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     -- in a script...
     source([[:call feedkeys(":%s/tw/MO/g\<CR>")]])
     -- or interactively...
@@ -169,7 +167,7 @@ describe(":substitute, 'inccommand' preserves", function()
 
   for _, case in pairs { '', 'split', 'nosplit' } do
     it('various delimiters (inccommand=' .. case .. ')', function()
-      t.skip_forced_mulitgrid(buggy_split, case == 'split')
+      t.skip_forced_multigrid_inccomand_split(case == 'split')
 
       insert(default_text)
       command('set inccommand=' .. case)
@@ -190,7 +188,7 @@ describe(":substitute, 'inccommand' preserves", function()
 
   for _, case in pairs { '', 'split', 'nosplit' } do
     it("'undolevels' (inccommand=" .. case .. ')', function()
-      t.skip_forced_mulitgrid(buggy_split, case == 'split')
+      t.skip_forced_multigrid_inccomand_split(case == 'split')
       command('set undolevels=139')
       command('setlocal undolevels=34')
       command('split') -- Show the buffer in multiple windows
@@ -206,7 +204,7 @@ describe(":substitute, 'inccommand' preserves", function()
 
   for _, case in ipairs({ '', 'split', 'nosplit' }) do
     it('empty undotree() (inccommand=' .. case .. ')', function()
-      t.skip_forced_mulitgrid(buggy_split, case == 'split')
+      t.skip_forced_multigrid_inccomand_split(case == 'split')
       command('set undolevels=1000')
       command('set inccommand=' .. case)
       local expected_undotree = eval('undotree()')
@@ -225,7 +223,7 @@ describe(":substitute, 'inccommand' preserves", function()
 
   for _, case in ipairs({ '', 'split', 'nosplit' }) do
     it('undotree() with branches (inccommand=' .. case .. ')', function()
-      t.skip_forced_mulitgrid(buggy_split, case == 'split')
+      t.skip_forced_multigrid_inccomand_split(case == 'split')
       command('set undolevels=1000')
       command('set inccommand=' .. case)
       -- Make some changes.
@@ -261,7 +259,7 @@ describe(":substitute, 'inccommand' preserves", function()
 
   for _, case in pairs { '', 'split', 'nosplit' } do
     it('b:changedtick (inccommand=' .. case .. ')', function()
-      t.skip_forced_mulitgrid(buggy_split, case == 'split')
+      t.skip_forced_multigrid_inccomand_split(case == 'split')
       command('set inccommand=' .. case)
       feed([[isome text 1<C-\><C-N>]])
       feed([[osome text 2<C-\><C-N>]])
@@ -280,7 +278,7 @@ describe(":substitute, 'inccommand' preserves", function()
 
   for _, case in ipairs({ '', 'split', 'nosplit' }) do
     it('previous substitute string ~ (inccommand=' .. case .. ') #12109', function()
-      t.skip_forced_mulitgrid(buggy_split, case == 'split')
+      t.skip_forced_multigrid_inccomand_split(case == 'split')
       local screen = Screen.new(30, 10)
       common_setup(screen, case, default_text)
 
@@ -768,7 +766,7 @@ describe(':substitute, inccommand=split', function()
   end)
 
   it("preserves 'modified' buffer flag", function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     command('set nomodified')
     feed(':%s/tw')
     screen:expect([[
@@ -789,7 +787,7 @@ describe(':substitute, inccommand=split', function()
   end)
 
   it('shows preview when cmd modifiers are present', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     -- one modifier
     feed(':keeppatterns %s/tw/to')
     screen:expect { any = [[{20:to}o lines]] }
@@ -823,7 +821,7 @@ describe(':substitute, inccommand=split', function()
   end)
 
   it('ignores new-window modifiers when splitting the preview window', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     -- one modifier
     feed(':topleft %s/tw/to')
     screen:expect([[
@@ -862,7 +860,7 @@ describe(':substitute, inccommand=split', function()
   end)
 
   it('shows split window when typing the pattern', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     feed(':%s/tw')
     screen:expect([[
       Inc substitution on           |
@@ -880,7 +878,7 @@ describe(':substitute, inccommand=split', function()
   end)
 
   it('shows preview with empty replacement', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     feed(':%s/tw/')
     screen:expect([[
       Inc substitution on           |
@@ -928,7 +926,7 @@ describe(':substitute, inccommand=split', function()
   end)
 
   it('shows split window when typing replacement', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     feed(':%s/tw/XX')
     screen:expect([[
       Inc substitution on           |
@@ -946,7 +944,7 @@ describe(':substitute, inccommand=split', function()
   end)
 
   it('does not show split window for :s/', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     feed('2gg')
     feed(':s/tw')
     screen:expect([[
@@ -961,7 +959,7 @@ describe(':substitute, inccommand=split', function()
   end)
 
   it("'hlsearch' is active, 'cursorline' is not", function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     command('set hlsearch cursorline')
     feed('gg')
 
@@ -994,7 +992,7 @@ describe(':substitute, inccommand=split', function()
   end)
 
   it('highlights the replacement text', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     feed('ggO')
     feed('M     M       M<esc>')
     feed(':%s/M/123/g')
@@ -1013,7 +1011,7 @@ describe(':substitute, inccommand=split', function()
   end)
 
   it("highlights nothing when there's no match", function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     feed('gg')
     feed(':%s/Inx')
     screen:expect([[
@@ -1031,7 +1029,7 @@ describe(':substitute, inccommand=split', function()
   end)
 
   it('previews correctly when previewhight is small', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     command('set cwh=3')
     command('set hls')
     feed('ggdG')
@@ -1049,7 +1047,7 @@ describe(':substitute, inccommand=split', function()
   end)
 
   it('actually replaces text', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     feed(':%s/tw/XX/g')
     poke_eventloop()
     feed('<Enter>')
@@ -1066,7 +1064,7 @@ describe(':substitute, inccommand=split', function()
   end)
 
   it('shows correct line numbers with many lines', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     feed('gg')
     feed('2yy')
     feed('2000p')
@@ -1093,7 +1091,7 @@ describe(':substitute, inccommand=split', function()
   end)
 
   it('does not spam the buffer numbers', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     -- The preview buffer is re-used (unless user deleted it), so buffer numbers
     -- will not increase on each keystroke.
     feed(':%s/tw/Xo/g')
@@ -1113,7 +1111,7 @@ describe(':substitute, inccommand=split', function()
   end)
 
   it('works with the n flag', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     feed(':%s/tw/Mix/n')
     poke_eventloop()
     feed('<Enter>')
@@ -1129,7 +1127,7 @@ describe(':substitute, inccommand=split', function()
   end)
 
   it("deactivates if 'redrawtime' is exceeded #5602", function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     -- prevent redraws from 'incsearch'
     api.nvim_set_option_value('incsearch', false, {})
     -- Assert that 'inccommand' is ENABLED initially.
@@ -1169,7 +1167,7 @@ describe(':substitute, inccommand=split', function()
   end)
 
   it("deactivates if 'foldexpr' is slow #9557", function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     insert([[
       a
       a
@@ -1203,7 +1201,7 @@ describe(':substitute, inccommand=split', function()
   end)
 
   it('clears preview if non-previewable command is edited #5585', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     feed('gg')
     -- Put a non-previewable command in history.
     feed(":echo 'foo'<CR>")
@@ -1239,7 +1237,7 @@ describe(':substitute, inccommand=split', function()
   end)
 
   it([[preview changes correctly with c_CTRL-R_= and c_CTRL-\_e]], function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     feed('gg')
     feed(':1,2s/t/X')
     screen:expect([[
@@ -1660,7 +1658,7 @@ describe("'inccommand' and :cnoremap", function()
   end)
 
   it('still works with a broken mapping', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     for _, case in pairs(cases) do
       refresh(case, true)
       command("cnoremap <expr> x execute('bwipeout!')[-1].'x'")
@@ -1679,7 +1677,7 @@ describe("'inccommand' and :cnoremap", function()
   end)
 
   it('work when temporarily moving the cursor', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     for _, case in pairs(cases) do
       refresh(case)
       command("cnoremap <expr> x cursor(1, 1)[-1].'x'")
@@ -1692,7 +1690,7 @@ describe("'inccommand' and :cnoremap", function()
   end)
 
   it("work when a mapping disables 'inccommand'", function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     for _, case in pairs(cases) do
       refresh(case)
       command("cnoremap <expr> x execute('set inccommand=')[-1]")
@@ -1705,7 +1703,7 @@ describe("'inccommand' and :cnoremap", function()
   end)
 
   it('work with a complex mapping', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     for _, case in pairs(cases) do
       refresh(case)
       source([[cnoremap x <C-\>eextend(g:, {'fo': getcmdline()})
@@ -1819,7 +1817,7 @@ describe("'inccommand' split windows", function()
   end
 
   it('work after more splits', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     refresh()
 
     feed('gg')
@@ -1877,7 +1875,7 @@ describe("'inccommand' split windows", function()
   }
 
   it('are not affected by various settings', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     for _, setting in pairs(settings) do
       refresh()
       command('set ' .. setting)
@@ -1899,7 +1897,7 @@ describe("'inccommand' split windows", function()
   end)
 
   it("don't open if there's not enough room", function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     refresh()
     screen:try_resize(40, 3)
     feed('gg:%s/tw')
@@ -1980,7 +1978,7 @@ describe(':substitute', function()
   end)
 
   it('inccommand=split, highlights multiline substitutions', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     common_setup(screen, 'split', multiline_text)
     feed('gg')
 
@@ -2057,7 +2055,7 @@ describe(':substitute', function()
   end)
 
   it('inccommand=split, highlights multiple matches on a line', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     common_setup(screen, 'split', multimatch_text)
     command('set gdefault')
     feed('gg')
@@ -2093,7 +2091,7 @@ describe(':substitute', function()
   end)
 
   it('inccommand=split, with \\zs', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     common_setup(screen, 'split', multiline_text)
     feed('gg')
 
@@ -2133,7 +2131,7 @@ describe(':substitute', function()
   end)
 
   it('inccommand=split, substitutions of different length', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     common_setup(screen, 'split', 'T T123 T2T TTT T090804\nx')
 
     feed(':%s/T\\([0-9]\\+\\)/\\1\\1/g')
@@ -2163,7 +2161,7 @@ describe(':substitute', function()
   end)
 
   it('inccommand=split, contraction of lines', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     local text = [[
       T T123 T T123 T2T TT T23423424
       x
@@ -2226,7 +2224,7 @@ describe(':substitute', function()
   end)
 
   it('inccommand=split, contraction of two subsequent NL chars', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     local text = [[
       AAA AA
 
@@ -2297,7 +2295,7 @@ describe(':substitute', function()
   end)
 
   it('inccommand=split, multibyte text', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     common_setup(screen, 'split', multibyte_text)
     feed(':%s/£.*ѫ/X¥¥')
     screen:expect([[
@@ -2366,7 +2364,7 @@ describe(':substitute', function()
   end)
 
   it('inccommand=split, small cmdwinheight', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     common_setup(screen, 'split', long_multiline_text)
     command('set cmdwinheight=2')
 
@@ -2429,7 +2427,7 @@ describe(':substitute', function()
   end)
 
   it('inccommand=split, large cmdwinheight', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     common_setup(screen, 'split', long_multiline_text)
     command('set cmdwinheight=11')
 
@@ -2492,7 +2490,7 @@ describe(':substitute', function()
   end)
 
   it('inccommand=split, lookaround', function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     common_setup(screen, 'split', 'something\neverything\nsomeone')
     feed([[:%s/\(some\)\@<lt>=thing/one/]])
     screen:expect([[
@@ -2555,7 +2553,7 @@ describe(':substitute', function()
   end)
 
   it("doesn't prompt to swap cmd range", function()
-    t.skip_forced_mulitgrid(buggy_split)
+    t.skip_forced_multigrid_inccomand_split()
     screen:try_resize(50, 8) -- wide to avoid hit-enter prompt
     common_setup(screen, 'split', default_text)
     feed(':2,1s/tw/MO/g')
@@ -2618,7 +2616,7 @@ it(':substitute with inccommand during :terminal activity', function()
 end)
 
 it(':substitute with inccommand, timer-induced :redraw #9777', function()
-  t.skip_forced_mulitgrid(buggy_split)
+  t.skip_forced_multigrid_inccomand_split()
   clear()
   local screen = Screen.new(30, 12)
   command('set cmdwinheight=3')
@@ -2938,7 +2936,7 @@ it("'inccommand' cannot be changed during preview #23136", function()
 end)
 
 it("'inccommand' value can be changed multiple times #27086", function()
-  t.skip_forced_mulitgrid(buggy_split)
+  t.skip_forced_multigrid_inccomand_split()
   clear()
   local screen = Screen.new(30, 20)
   common_setup(screen, 'split', 'foo1\nfoo2\nfoo3')

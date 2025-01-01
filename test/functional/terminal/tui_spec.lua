@@ -636,12 +636,12 @@ describe('TUI', function()
 
   describe('accepts mouse wheel events', function()
     it('(mouse events sent to host)', function()
-    t.skip_forced_multigrid_tui()
+      t.skip_forced_multigrid_tui()
       test_mouse_wheel(false)
     end)
 
     it('(escape sequences sent to child)', function()
-    t.skip_forced_multigrid_tui()
+      t.skip_forced_multigrid_tui()
       test_mouse_wheel(true)
     end)
   end)
@@ -786,12 +786,12 @@ describe('TUI', function()
 
   describe('mouse events work with right-click menu', function()
     it('(mouse events sent to host)', function()
-    t.skip_forced_multigrid_tui()
+      t.skip_forced_multigrid_tui()
       test_mouse_popup(false)
     end)
 
     it('(escape sequences sent to child)', function()
-    t.skip_forced_multigrid_tui()
+      t.skip_forced_multigrid_tui()
       test_mouse_popup(true)
     end)
   end)
@@ -2194,7 +2194,7 @@ describe('TUI', function()
   -- #28667, #28668
   for _, guicolors in ipairs({ 'notermguicolors', 'termguicolors' }) do
     it('has no black flicker when clearing regions during startup with ' .. guicolors, function()
-    t.skip_forced_multigrid_tui()
+      t.skip_forced_multigrid_tui()
       local screen = Screen.new(50, 10)
       fn.jobstart({
         nvim_prog,

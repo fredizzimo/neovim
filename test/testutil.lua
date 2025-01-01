@@ -893,4 +893,10 @@ function M.skip_forced_multigrid_tui()
   M.skip_forced_mulitgrid(reason, nil, 3)
 end
 
+--- @param cond? boolean
+function M.skip_forced_multigrid_inccomand_split(cond)
+  local reason = 'FIXME: Inccommand split does not work with multigrid #24802'
+  M.skip_forced_mulitgrid(reason, cond, 3)
+end
+
 return M

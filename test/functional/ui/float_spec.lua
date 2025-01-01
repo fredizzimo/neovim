@@ -4815,7 +4815,7 @@ describe('float window', function()
     end)
 
     it('does not crash with inccommand #9379', function()
-      t.skip_forced_mulitgrid('FIXME: Inccommand split does not work with multigrid #24802')
+      t.skip_forced_multigrid_inccomand_split()
       local expected_pos = {
         [4]={ 1001, 'NW', 1, 2, 0, true, 50, 1, 2, 0},
       }
