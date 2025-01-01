@@ -868,14 +868,24 @@ end
 
 --- @param reason string
 --- @param cond? boolean
-function M.skip_forced_mulitgrid(reason, cond)
+--- @param stackdepth? integer
+function M.skip_forced_mulitgrid(reason, cond, stackdepth)
+  if stackdepth == nil then
+    stackdepth = 2
+  end
   if cond == nil or cond then
     if M.is_forced_multigrid() then
       --- @type fun(reason: string)
-      local pending = getfenv(2).pending
+      local pending = getfenv(stackdepth).pending
       pending('skipped forced multigrid test: ' .. reason)
     end
   end
+end
+
+--- @param linegrid? boolean
+function M.skip_forced_multigrid_non_linegrid(linegrid)
+  local reason = 'linegrid has to be enabled with multigrid'
+  M.skip_forced_mulitgrid(reason, not linegrid, 3)
 end
 
 return M
