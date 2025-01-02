@@ -2026,6 +2026,7 @@ vimComment     xxx match /\s"[^\-:.%#=*].*$/ms=s+1,lc=1  excludenl contains=@vim
   end)
 
   it('supports :intro with cmdheight=0 #26505', function()
+    t.skip_forced_multigrid_intro()
     screen:try_resize(80, 24)
     command('set cmdheight=0')
     feed(':intro<CR>')
@@ -2149,41 +2150,44 @@ describe('ui/ext_messages', function()
     }
 
     feed('<esc>:intro<cr>')
-    screen:expect {
-      grid = [[
-        ^                                                                                |
-                                                                                        |*4
-        {MATCH:.*}|
-                                                                                        |
-                          Nvim is open source and freely distributable                  |
-                                    https://neovim.io/#chat                             |
-                                                                                        |
-                         type  :help nvim{18:<Enter>}       if you are new!                  |
-                         type  :checkhealth{18:<Enter>}     to optimize Nvim                 |
-                         type  :q{18:<Enter>}               to exit                          |
-                         type  :help{18:<Enter>}            for help                         |
-                                                                                        |
-        {MATCH: +}type  :help news{18:<Enter>} to see changes in v{MATCH:%d+%.%d+ +}|
-                                                                                        |
-                                 Help poor children in Uganda!                          |
-                         type  :help iccf{18:<Enter>}       for information                  |
-                                                                                        |*5
-      ]],
-      cmdline = {
-        {
-          content = { { '' } },
-          hl = 'MoreMsg',
-          pos = 0,
-          prompt = 'Press any key to continue',
+    --FIXME: :intro does not work with multigrid #24705
+    if not t.is_forced_multigrid() then
+      screen:expect {
+        grid = [[
+          ^                                                                                |
+                                                                                          |*4
+          {MATCH:.*}|
+                                                                                          |
+                            Nvim is open source and freely distributable                  |
+                                      https://neovim.io/#chat                             |
+                                                                                          |
+                           type  :help nvim{18:<Enter>}       if you are new!                  |
+                           type  :checkhealth{18:<Enter>}     to optimize Nvim                 |
+                           type  :q{18:<Enter>}               to exit                          |
+                           type  :help{18:<Enter>}            for help                         |
+                                                                                          |
+          {MATCH: +}type  :help news{18:<Enter>} to see changes in v{MATCH:%d+%.%d+ +}|
+                                                                                          |
+                                   Help poor children in Uganda!                          |
+                           type  :help iccf{18:<Enter>}       for information                  |
+                                                                                          |*5
+        ]],
+        cmdline = {
+          {
+            content = { { '' } },
+            hl = 'MoreMsg',
+            pos = 0,
+            prompt = 'Press any key to continue',
+          },
         },
-      },
-    }
+      }
 
-    feed('<cr>')
-    screen:expect([[
-      ^x                                                                               |
-      {1:~                                                                               }|*23
-    ]])
+      feed('<cr>')
+      screen:expect([[
+        ^x                                                                               |
+        {1:~                                                                               }|*23
+      ]])
+    end
   end)
 
   it('clears intro screen when new buffer is active', function()

@@ -5241,6 +5241,7 @@ describe('float window', function()
     end)
 
     it('does not crash with inccommand #9379', function()
+      t.skip_forced_multigrid_inccomand_split()
       local expected_pos = { [4] = { 1001, 'NW', 1, 2, 0, true, 50, 1, 2, 0 } }
       command('set inccommand=split')
       command('set laststatus=2')
@@ -7554,8 +7555,13 @@ describe('float window', function()
           ]])
         end
 
+        if not multigrid and not t.is_forced_multigrid() then
+          eq("UI doesn't support external windows", pcall_err(api.nvim_win_set_config, 0, { external = true, width = 30, height = 2 }))
+          return
+        end
+        api.nvim_win_set_config(0, { external = true, width = 30, height = 2 })
+
         if multigrid then
-          api.nvim_win_set_config(0, { external = true, width = 30, height = 2 })
           expected_pos = { [4] = { external = true } }
           screen:expect {
             grid = [[
@@ -7575,8 +7581,14 @@ describe('float window', function()
             float_pos = expected_pos,
           }
         else
-          eq("UI doesn't support external windows", pcall_err(api.nvim_win_set_config, 0, { external = true, width = 30, height = 2 }))
-          return
+          screen:expect([[
+            x                                       |
+            {0:~                                       }|*2
+            {0:^~                                       }|
+            {0:~                                       }|
+            {5:[No Name] [+]                           }|
+                                                    |
+          ]])
         end
 
         feed('<c-w>J')
@@ -7914,7 +7926,9 @@ describe('float window', function()
             float_pos = expected_pos,
           }
         else
-          eq("UI doesn't support external windows", pcall_err(api.nvim_win_set_config, 0, { external = true, width = 65, height = 4 }))
+          if not t.is_forced_multigrid() then
+            eq("UI doesn't support external windows", pcall_err(api.nvim_win_set_config, 0, { external = true, width = 65, height = 4 }))
+          end
         end
 
         feed(':tabnext<cr>')
@@ -10043,6 +10057,7 @@ describe('float window', function()
       )
 
       if multigrid then
+        -- FIXME: The grid is not resized
         screen:expect {
           grid = [[
         ## grid 1
@@ -10064,6 +10079,19 @@ describe('float window', function()
             [2] = { win = 1000, topline = 0, botline = 2, curline = 0, curcol = 0, linecount = 1, sum_scroll_delta = 0 },
             [4] = { win = 1001, topline = 0, botline = 2, curline = 0, curcol = 0, linecount = 1, sum_scroll_delta = 0 },
           },
+        }
+      elseif t.is_forced_multigrid() then
+        -- FIXME: The grid is not resized
+        screen:expect {
+          grid = [[
+                                                  |
+          {0:~                                       }|*3
+          {5:┌──────────────────────────────────────┐}|
+          {5:│}{1:                                      }{5:│}|
+          {4:                                        }|
+                                                  |
+          {8:Press ENTER or type command to continue}^ |
+        ]],
         }
       else
         screen:expect {
