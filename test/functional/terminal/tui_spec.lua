@@ -42,6 +42,7 @@ describe('TUI :detach', function()
   end)
 
   it('does not stop server', function()
+    t.skip_forced_multigrid_reattach()
     local job_opts = {
       env = {
         NVIM_LOG_FILE = testlog,
@@ -225,6 +226,7 @@ describe('TUI', function()
   end
 
   it('rapid resize #7572 #7628', function()
+    t.skip_forced_multigrid_tui()
     -- Need buffer rows to provoke the behavior.
     feed_data(':edit test/functional/fixtures/bigfile.txt\n')
     screen:expect([[
@@ -258,6 +260,7 @@ describe('TUI', function()
   end)
 
   it('accepts resize while pager is active', function()
+    t.skip_forced_multigrid_tui()
     child_session:request(
       'nvim_exec2',
       [[
@@ -378,6 +381,7 @@ describe('TUI', function()
   end)
 
   it('accepts basic utf-8 input', function()
+    t.skip_forced_multigrid_tui()
     feed_data('iabc\ntest1\ntest2')
     screen:expect([[
       abc                                               |
@@ -401,6 +405,7 @@ describe('TUI', function()
   end)
 
   it('interprets leading <Esc> byte as ALT modifier in normal-mode', function()
+    t.skip_forced_multigrid_tui()
     local keys = 'dfghjkl'
     for c in keys:gmatch('.') do
       feed_data(':nnoremap <a-' .. c .. '> ialt-' .. c .. '<cr><esc>\r')
@@ -428,6 +433,7 @@ describe('TUI', function()
   end)
 
   it('interprets ESC+key as ALT chord in i_CTRL-V', function()
+    t.skip_forced_multigrid_tui()
     -- Vim represents ALT/META by setting the "high bit" of the modified key:
     -- ALT+j inserts "ê". Nvim does not (#3982).
     feed_data('i\022\027j')
@@ -441,6 +447,7 @@ describe('TUI', function()
   end)
 
   it('interprets <Esc>[27u as <Esc>', function()
+    t.skip_forced_multigrid_tui()
     child_session:request(
       'nvim_exec2',
       [[
@@ -464,6 +471,7 @@ describe('TUI', function()
   end)
 
   it('interprets <Esc><Nul> as <M-C-Space> #17198', function()
+    t.skip_forced_multigrid_tui()
     feed_data('i\022\027\000')
     screen:expect([[
       <M-C-Space>^                                       |
@@ -475,6 +483,7 @@ describe('TUI', function()
   end)
 
   it('accepts ASCII control sequences', function()
+    t.skip_forced_multigrid_tui()
     feed_data('i')
     feed_data('\022\007') -- ctrl+g
     feed_data('\022\022') -- ctrl+v
@@ -751,10 +760,12 @@ describe('TUI', function()
 
   describe('accepts mouse wheel events', function()
     it('(mouse events sent to host)', function()
+      t.skip_forced_multigrid_tui()
       test_mouse_wheel(false)
     end)
 
     it('(escape sequences sent to child)', function()
+      t.skip_forced_multigrid_tui()
       test_mouse_wheel(true)
     end)
   end)
@@ -899,15 +910,18 @@ describe('TUI', function()
 
   describe('mouse events work with right-click menu', function()
     it('(mouse events sent to host)', function()
+      t.skip_forced_multigrid_tui()
       test_mouse_popup(false)
     end)
 
     it('(escape sequences sent to child)', function()
+      t.skip_forced_multigrid_tui()
       test_mouse_popup(true)
     end)
   end)
 
   it('accepts keypad keys from kitty keyboard protocol #19180', function()
+    t.skip_forced_multigrid_tui()
     feed_data('i')
     feed_data(fn.nr2char(57399)) -- KP_0
     feed_data(fn.nr2char(57400)) -- KP_1
@@ -1072,6 +1086,7 @@ describe('TUI', function()
   end)
 
   it('supports Super and Meta modifiers', function()
+    t.skip_forced_multigrid_tui()
     feed_data('i')
     feed_data('\022\027[106;9u') -- Super + j
     feed_data('\022\027[107;33u') -- Meta + k
@@ -1093,6 +1108,7 @@ describe('TUI', function()
   end)
 
   it('paste: Insert mode', function()
+    t.skip_forced_multigrid_tui()
     -- "bracketed paste"
     feed_data('i""\027i\027[200~')
     screen:expect([[
@@ -1144,6 +1160,7 @@ describe('TUI', function()
   end)
 
   it('paste: select-mode', function()
+    t.skip_forced_multigrid_tui()
     feed_data('ithis is line 1\nthis is line 2\nline 3 is here\n\027')
     wait_for_mode('n')
     screen:expect([[
@@ -1194,6 +1211,7 @@ describe('TUI', function()
   end)
 
   it('paste: terminal mode', function()
+    t.skip_forced_multigrid_tui()
     if is_ci('github') then
       pending('tty-test complains about not owning the terminal -- actions/runner#241')
     end
@@ -1225,6 +1243,7 @@ describe('TUI', function()
   end)
 
   it('paste: normal-mode (+CRLF #10872)', function()
+    t.skip_forced_multigrid_tui()
     feed_data(':set ruler | echo')
     wait_for_mode('c')
     feed_data('\n')
@@ -1279,6 +1298,7 @@ describe('TUI', function()
   end)
 
   it('paste: cmdline-mode inserts 1 line', function()
+    t.skip_forced_multigrid_tui()
     feed_data('ifoo\n') -- Insert some text (for dot-repeat later).
     feed_data('\027:""') -- Enter Cmdline-mode.
     feed_data('\027[D') -- <Left> to place cursor between quotes.
@@ -1320,6 +1340,7 @@ describe('TUI', function()
   end)
 
   it('paste: cmdline-mode collects chunks of unfinished line', function()
+    t.skip_forced_multigrid_tui()
     local function expect_cmdline(expected)
       retry(nil, nil, function()
         local _, cmdline = child_session:request('nvim_call_function', 'getcmdline', {})
@@ -1347,6 +1368,7 @@ describe('TUI', function()
   end)
 
   it('paste: recovers from vim.paste() failure', function()
+    t.skip_forced_multigrid_tui()
     child_exec_lua([[
       _G.save_paste_fn = vim.paste
       -- Stack traces for this test are non-deterministic, so disable them
@@ -1419,6 +1441,7 @@ describe('TUI', function()
   end)
 
   it('paste: vim.paste() cancel (retval=false) #10865', function()
+    t.skip_forced_multigrid_tui()
     -- This test only exercises the "cancel" case.  Use-case would be "dangling
     -- paste", but that is not implemented yet. #10865
     child_exec_lua([[
@@ -1431,6 +1454,7 @@ describe('TUI', function()
   end)
 
   it('paste: vim.paste() cancel (retval=false) with streaming #30462', function()
+    t.skip_forced_multigrid_tui()
     child_exec_lua([[
       vim.paste = (function(overridden)
         return function(lines, phase)
@@ -1463,6 +1487,7 @@ describe('TUI', function()
   end)
 
   it("paste: 'nomodifiable' buffer", function()
+    t.skip_forced_multigrid_tui()
     child_exec_lua([[
       vim.bo.modifiable = false
       -- Truncate the error message to hide the line number
@@ -1493,6 +1518,7 @@ describe('TUI', function()
   end)
 
   it('paste: exactly 64 bytes #10311', function()
+    t.skip_forced_multigrid_tui()
     local expected = string.rep('z', 64)
     feed_data('i')
     wait_for_mode('i')
@@ -1513,6 +1539,7 @@ describe('TUI', function()
   end)
 
   it('paste: less-than sign in cmdline  #11088', function()
+    t.skip_forced_multigrid_tui()
     local expected = '<'
     feed_data(':')
     wait_for_mode('c')
@@ -1528,6 +1555,7 @@ describe('TUI', function()
   end)
 
   it('paste: big burst of input', function()
+    t.skip_forced_multigrid_tui()
     feed_data(':set ruler\n')
     local q = {}
     for i = 1, 3000 do
@@ -1564,6 +1592,7 @@ describe('TUI', function()
   end)
 
   it('paste: forwards spurious "start paste" code', function()
+    t.skip_forced_multigrid_tui()
     -- If multiple "start paste" sequences are sent without a corresponding
     -- "stop paste" sequence, only the first occurrence should be consumed.
     feed_data('i')
@@ -1588,6 +1617,7 @@ describe('TUI', function()
   end)
 
   it('paste: ignores spurious "stop paste" code', function()
+    t.skip_forced_multigrid_tui()
     -- If "stop paste" sequence is received without a preceding "start paste"
     -- sequence, it should be ignored.
     feed_data('i')
@@ -1604,6 +1634,7 @@ describe('TUI', function()
   end)
 
   it('paste: split "start paste" code', function()
+    t.skip_forced_multigrid_tui()
     feed_data('i')
     wait_for_mode('i')
     -- Send split "start paste" sequence.
@@ -1619,6 +1650,7 @@ describe('TUI', function()
   end)
 
   it('paste: split "stop paste" code', function()
+    t.skip_forced_multigrid_tui()
     feed_data('i')
     wait_for_mode('i')
     -- Send split "stop paste" sequence.
@@ -1634,6 +1666,7 @@ describe('TUI', function()
   end)
 
   it('paste: streamed paste with isolated "stop paste" code', function()
+    t.skip_forced_multigrid_tui()
     child_exec_lua([[
       _G.paste_phases = {}
       vim.paste = (function(overridden)
@@ -1671,6 +1704,7 @@ describe('TUI', function()
   end)
 
   it('allows termguicolors to be set at runtime', function()
+    t.skip_forced_multigrid_tui()
     screen:set_option('rgb', true)
     screen:set_default_attr_ids({
       [1] = { reverse = true },
@@ -1718,6 +1752,7 @@ describe('TUI', function()
   end)
 
   it('forwards :term palette colors with termguicolors', function()
+    t.skip_forced_multigrid_tui()
     if is_ci('github') then
       pending('tty-test complains about not owning the terminal -- actions/runner#241')
     end
@@ -1793,6 +1828,7 @@ describe('TUI', function()
 
   -- Note: libvterm doesn't support colored underline or undercurl.
   it('supports undercurl and underdouble when run in :terminal', function()
+    t.skip_forced_multigrid_tui()
     screen:set_default_attr_ids({
       [1] = { reverse = true },
       [2] = { bold = true, reverse = true },
@@ -1821,6 +1857,7 @@ describe('TUI', function()
   end)
 
   it('in nvim_list_uis(), sets nvim_set_client_info()', function()
+    t.skip_forced_multigrid_tui()
     -- $TERM in :terminal.
     local exp_term = is_os('bsd') and 'builtin_xterm' or 'xterm-256color'
     local ui_chan = 1
@@ -1887,6 +1924,7 @@ describe('TUI', function()
   end)
 
   it('allows grid to assume wider ambiwidth chars than host terminal', function()
+    t.skip_forced_multigrid_tui()
     child_session:request(
       'nvim_buf_set_lines',
       0,
@@ -1931,6 +1969,7 @@ describe('TUI', function()
   end)
 
   it('allows grid to assume wider non-ambiwidth chars than host terminal', function()
+    t.skip_forced_multigrid_tui()
     child_session:request(
       'nvim_buf_set_lines',
       0,
@@ -1975,6 +2014,7 @@ describe('TUI', function()
   end)
 
   it('draws correctly when cursor_address overflows #21643', function()
+    t.skip_forced_multigrid_tui()
     screen:try_resize(70, 333)
     retry(nil, nil, function()
       eq({ true, 330 }, { child_session:request('nvim_win_get_height', 0) })
@@ -2005,6 +2045,7 @@ describe('TUI', function()
   end)
 
   it('draws correctly when setting title overflows #30793', function()
+    t.skip_forced_multigrid_tui()
     screen:try_resize(67, 327)
     retry(nil, nil, function()
       eq({ true, 324 }, { child_session:request('nvim_win_get_height', 0) })
@@ -2045,6 +2086,7 @@ describe('TUI', function()
   end)
 
   it('visual bell (padding) does not crash #21610', function()
+    t.skip_forced_multigrid_tui()
     feed_data ':set visualbell\n'
     screen:expect {
       grid = [[
@@ -2072,6 +2114,7 @@ describe('TUI', function()
   end)
 
   it('no assert failure on deadly signal #21896', function()
+    t.skip_forced_multigrid_tui()
     exec_lua([[vim.uv.kill(vim.fn.jobpid(vim.bo.channel), 'sigterm')]])
     screen:expect {
       grid = [[
@@ -2085,6 +2128,7 @@ describe('TUI', function()
   end)
 
   it('no stack-use-after-scope with cursor color #22432', function()
+    t.skip_forced_multigrid_tui()
     screen:set_option('rgb', true)
     command('set termguicolors')
     child_session:request(
@@ -2121,6 +2165,7 @@ describe('TUI', function()
   end)
 
   it('redraws on SIGWINCH even if terminal size is unchanged #23411', function()
+    t.skip_forced_multigrid_tui()
     child_session:request('nvim_echo', { { 'foo' } }, false, {})
     screen:expect([[
       ^                                                  |
@@ -2140,6 +2185,7 @@ describe('TUI', function()
   end)
 
   it('supports hiding cursor', function()
+    t.skip_forced_multigrid_tui()
     child_session:request(
       'nvim_command',
       "let g:id = jobstart([v:progpath, '--clean', '--headless'])"
@@ -2163,6 +2209,7 @@ describe('TUI', function()
   end)
 
   it('cursor is not hidden on incsearch with no match', function()
+    t.skip_forced_multigrid_tui()
     feed_data('ifoo\027')
     feed_data('/foo')
     screen:expect([[
@@ -2193,6 +2240,7 @@ describe('TUI', function()
   end)
 
   it('emits hyperlinks with OSC 8', function()
+    t.skip_forced_multigrid_tui()
     exec_lua([[
       local buf = vim.api.nvim_get_current_buf()
       _G.urls = {}
@@ -2228,6 +2276,7 @@ describe('TUI', function()
   before_each(clear)
 
   it('resize at startup #17285 #15044 #11330', function()
+    t.skip_forced_multigrid_tui()
     local screen = Screen.new(50, 10)
     screen:set_default_attr_ids({
       [1] = { reverse = true },
@@ -2269,6 +2318,7 @@ describe('TUI', function()
   -- #28667, #28668
   for _, guicolors in ipairs({ 'notermguicolors', 'termguicolors' }) do
     it('has no black flicker when clearing regions during startup with ' .. guicolors, function()
+      t.skip_forced_multigrid_tui()
       local screen = Screen.new(50, 10)
       fn.jobstart({
         nvim_prog,
@@ -2301,6 +2351,7 @@ describe('TUI', function()
   end
 
   it('argv[0] can be overridden #23953', function()
+    t.skip_forced_multigrid_tui()
     if not exec_lua('return pcall(require, "ffi")') then
       pending('missing LuaJIT FFI')
     end
@@ -2341,6 +2392,7 @@ describe('TUI', function()
   end)
 
   it('with non-tty (pipe) stdout/stderr', function()
+    t.skip_forced_multigrid_tui()
     finally(function()
       os.remove('testF')
     end)
@@ -2365,6 +2417,7 @@ describe('TUI', function()
   end)
 
   it('<C-h> #10134', function()
+    t.skip_forced_multigrid_tui()
     local screen = tt.setup_child_nvim({
       '--clean',
       '--cmd',
@@ -2395,6 +2448,7 @@ describe('TUI', function()
   end)
 
   it('draws line with many trailing spaces correctly #24955', function()
+    t.skip_forced_multigrid_tui()
     local screen = tt.setup_child_nvim({
       '--clean',
       '--cmd',
@@ -2429,6 +2483,7 @@ describe('TUI', function()
   end)
 
   it('draws screen lines with leading spaces correctly #29711', function()
+    t.skip_forced_multigrid_tui()
     local screen = tt.setup_child_nvim({
       '--clean',
       '--cmd',
@@ -2467,6 +2522,7 @@ describe('TUI', function()
   end)
 
   it('no heap-buffer-overflow when changing &columns', function()
+    t.skip_forced_multigrid_tui()
     -- Set a different bg colour and change $TERM to something dumber so the `print_spaces()`
     -- codepath in `clear_region()` is hit.
     local screen = tt.setup_child_nvim({
@@ -2509,6 +2565,7 @@ end)
 
 describe('TUI UIEnter/UILeave', function()
   it('fires exactly once, after VimEnter', function()
+    t.skip_forced_multigrid_tui()
     clear()
     local screen = tt.setup_child_nvim({
       '--clean',
@@ -2587,6 +2644,7 @@ describe('TUI FocusGained/FocusLost', function()
   end)
 
   it('in normal-mode', function()
+    t.skip_forced_multigrid_tui()
     retry(2, 3 * screen.timeout, function()
       feed_data('\027[I')
       screen:expect([[
@@ -2609,6 +2667,7 @@ describe('TUI FocusGained/FocusLost', function()
   end)
 
   it('in insert-mode', function()
+    t.skip_forced_multigrid_tui()
     feed_data(':set noshowmode\r')
     feed_data('i')
     screen:expect {
@@ -2643,6 +2702,7 @@ describe('TUI FocusGained/FocusLost', function()
   -- During cmdline-mode we ignore :echo invoked by timers/events.
   -- See commit: 5cc87d4dabd02167117be7a978b5c8faaa975419.
   it('in cmdline-mode does NOT :echo', function()
+    t.skip_forced_multigrid_tui()
     feed_data(':')
     feed_data('\027[I')
     screen:expect([[
@@ -2666,6 +2726,7 @@ describe('TUI FocusGained/FocusLost', function()
   end)
 
   it('in cmdline-mode', function()
+    t.skip_forced_multigrid_tui()
     -- Set up autocmds that modify the buffer, instead of just calling :echo.
     -- This is how we can test handling of focus gained/lost during cmdline-mode.
     -- See commit: 5cc87d4dabd02167117be7a978b5c8faaa975419.
@@ -2694,6 +2755,7 @@ describe('TUI FocusGained/FocusLost', function()
   end)
 
   it('in terminal-mode', function()
+    t.skip_forced_multigrid_tui()
     feed_data(':set shell=' .. testprg('shell-test') .. ' shellcmdflag=EXE\n')
     feed_data(':set noshowmode laststatus=0\n')
 
@@ -2735,6 +2797,7 @@ describe('TUI FocusGained/FocusLost', function()
   end)
 
   it('in press-enter prompt', function()
+    t.skip_forced_multigrid_tui()
     feed_data(":echom 'msg1'|echom 'msg2'|echom 'msg3'|echom 'msg4'|echom 'msg5'\n")
     -- Execute :messages to provoke the press-enter prompt.
     feed_data(':messages\n')
@@ -2822,54 +2885,66 @@ describe("TUI 't_Co' (terminal colors)", function()
   -- ansi and no terminal type at all:
 
   it('no TERM uses 8 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors(nil, nil, 8)
   end)
 
   it('TERM=ansi no COLORTERM uses 8 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('ansi', nil, 8)
   end)
 
   it('TERM=ansi with COLORTERM=anything-no-number uses 16 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('ansi', 'yet-another-term', 16)
   end)
 
   it('unknown TERM COLORTERM with 256 in name uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('ansi', 'yet-another-term-256color', 256)
   end)
 
   it('TERM=ansi-256color sets 256 colours', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('ansi-256color', nil, 256)
   end)
 
   -- Unknown terminal types:
 
   it('unknown TERM no COLORTERM sets 8 colours', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('yet-another-term', nil, 8)
   end)
 
   it('unknown TERM with COLORTERM=anything-no-number uses 16 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('yet-another-term', 'yet-another-term', 16)
   end)
 
   it('unknown TERM with 256 in name sets 256 colours', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('yet-another-term-256color', nil, 256)
   end)
 
   it('unknown TERM COLORTERM with 256 in name uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('yet-another-term', 'yet-another-term-256color', 256)
   end)
 
   -- Linux kernel terminal emulator:
 
   it('TERM=linux uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('linux', nil, 256)
   end)
 
   it('TERM=linux-16color uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('linux-16color', nil, 256)
   end)
 
   it('TERM=linux-256color uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('linux-256color', nil, 256)
   end)
 
@@ -2880,6 +2955,7 @@ describe("TUI 't_Co' (terminal colors)", function()
   -- which is raised to 16 by COLORTERM.
 
   it('TERM=screen no COLORTERM uses 8/256 colors', function()
+    t.skip_forced_multigrid_tui()
     if is_os('freebsd') then
       assert_term_colors('screen', nil, 256)
     else
@@ -2888,6 +2964,7 @@ describe("TUI 't_Co' (terminal colors)", function()
   end)
 
   it('TERM=screen COLORTERM=screen uses 16/256 colors', function()
+    t.skip_forced_multigrid_tui()
     if is_os('freebsd') then
       assert_term_colors('screen', 'screen', 256)
     else
@@ -2896,10 +2973,12 @@ describe("TUI 't_Co' (terminal colors)", function()
   end)
 
   it('TERM=screen COLORTERM=screen-256color uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('screen', 'screen-256color', 256)
   end)
 
   it('TERM=screen-256color no COLORTERM uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('screen-256color', nil, 256)
   end)
 
@@ -2910,36 +2989,44 @@ describe("TUI 't_Co' (terminal colors)", function()
   -- which is raised to 256.
 
   it('TERM=tmux no COLORTERM uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('tmux', nil, 256)
   end)
 
   it('TERM=tmux COLORTERM=tmux uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('tmux', 'tmux', 256)
   end)
 
   it('TERM=tmux COLORTERM=tmux-256color uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('tmux', 'tmux-256color', 256)
   end)
 
   it('TERM=tmux-256color no COLORTERM uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('tmux-256color', nil, 256)
   end)
 
   -- xterm and imitators:
 
   it('TERM=xterm uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('xterm', nil, 256)
   end)
 
   it('TERM=xterm COLORTERM=gnome-terminal uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('xterm', 'gnome-terminal', 256)
   end)
 
   it('TERM=xterm COLORTERM=mate-terminal uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('xterm', 'mate-terminal', 256)
   end)
 
   it('TERM=xterm-256color uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('xterm-256color', nil, 256)
   end)
 
@@ -2951,42 +3038,52 @@ describe("TUI 't_Co' (terminal colors)", function()
   -- with 8, 8, and 16 colours respectively, which are raised to 256.
 
   it('TERM=rxvt no COLORTERM uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('rxvt', nil, 256)
   end)
 
   it('TERM=rxvt COLORTERM=rxvt uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('rxvt', 'rxvt', 256)
   end)
 
   it('TERM=rxvt-256color uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('rxvt-256color', nil, 256)
   end)
 
   it('TERM=st no COLORTERM uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('st', nil, 256)
   end)
 
   it('TERM=st COLORTERM=st uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('st', 'st', 256)
   end)
 
   it('TERM=st COLORTERM=st-256color uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('st', 'st-256color', 256)
   end)
 
   it('TERM=st-16color no COLORTERM uses 8/256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('st', nil, 256)
   end)
 
   it('TERM=st-16color COLORTERM=st uses 16/256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('st', 'st', 256)
   end)
 
   it('TERM=st-16color COLORTERM=st-256color uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('st', 'st-256color', 256)
   end)
 
   it('TERM=st-256color uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('st-256color', nil, 256)
   end)
 
@@ -2998,34 +3095,42 @@ describe("TUI 't_Co' (terminal colors)", function()
   -- raised to 256.
 
   it('TERM=gnome no COLORTERM uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('gnome', nil, 256)
   end)
 
   it('TERM=gnome COLORTERM=gnome uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('gnome', 'gnome', 256)
   end)
 
   it('TERM=gnome COLORTERM=gnome-256color uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('gnome', 'gnome-256color', 256)
   end)
 
   it('TERM=gnome-256color uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('gnome-256color', nil, 256)
   end)
 
   it('TERM=vte no COLORTERM uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('vte', nil, 256)
   end)
 
   it('TERM=vte COLORTERM=vte uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('vte', 'vte', 256)
   end)
 
   it('TERM=vte COLORTERM=vte-256color uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('vte', 'vte-256color', 256)
   end)
 
   it('TERM=vte-256color uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('vte-256color', nil, 256)
   end)
 
@@ -3038,10 +3143,12 @@ describe("TUI 't_Co' (terminal colors)", function()
   end)
 
   it('TERM=iTerm.app uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('iTerm.app', nil, 256)
   end)
 
   it('TERM=iterm uses 256 colors', function()
+    t.skip_forced_multigrid_tui()
     assert_term_colors('iterm', nil, 256)
   end)
 end)
@@ -3072,10 +3179,12 @@ describe("TUI 'term' option", function()
   end
 
   it('gets builtin term if $TERM is invalid', function()
+    t.skip_forced_multigrid_tui()
     assert_term('foo', 'builtin_ansi')
   end)
 
   it('gets system-provided term if $TERM is valid', function()
+    t.skip_forced_multigrid_tui()
     if is_os('openbsd') then
       assert_term('xterm', 'xterm')
     elseif is_os('bsd') then -- BSD lacks terminfo, builtin is always used.
@@ -3091,6 +3200,7 @@ describe("TUI 'term' option", function()
   end)
 
   it('builtin terms', function()
+    t.skip_forced_multigrid_tui()
     -- These non-standard terminfos are always builtin.
     assert_term('win32con', 'builtin_win32con')
     assert_term('conemu', 'builtin_conemu')
@@ -3125,6 +3235,7 @@ describe('TUI', function()
   end
 
   it('-V3log logs terminfo values', function()
+    t.skip_forced_multigrid_tui()
     nvim_tui('-V3' .. logfile)
 
     -- Wait for TUI to start.
@@ -3144,6 +3255,7 @@ describe('TUI', function()
   end)
 
   it('does not crash on large inputs #26099', function()
+    t.skip_forced_multigrid_tui()
     nvim_tui()
 
     screen:expect([[
@@ -3167,6 +3279,7 @@ describe('TUI', function()
   end)
 
   it('queries the terminal for truecolor support', function()
+    t.skip_forced_multigrid_tui()
     clear()
     exec_lua([[
       vim.api.nvim_create_autocmd('TermRequest', {
@@ -3218,6 +3331,7 @@ describe('TUI', function()
   end)
 
   it('does not query the terminal for truecolor support if $COLORTERM is set', function()
+    t.skip_forced_multigrid_tui()
     clear()
     exec_lua([[
       vim.api.nvim_create_autocmd('TermRequest', {
@@ -3270,6 +3384,7 @@ describe('TUI', function()
   end)
 
   it('queries the terminal for OSC 52 support', function()
+    t.skip_forced_multigrid_tui()
     clear()
     exec_lua([[
       vim.api.nvim_create_autocmd('TermRequest', {
@@ -3310,6 +3425,7 @@ describe('TUI bg color', function()
   before_each(clear)
 
   it('is properly set in a nested Nvim instance when background=dark', function()
+    t.skip_forced_multigrid_tui()
     command('highlight clear Normal')
     command('set background=dark') -- set outer Nvim background
     local child_server = new_pipename()
@@ -3330,6 +3446,7 @@ describe('TUI bg color', function()
   end)
 
   it('is properly set in a nested Nvim instance when background=light', function()
+    t.skip_forced_multigrid_tui()
     command('highlight clear Normal')
     command('set background=light') -- set outer Nvim background
     local child_server = new_pipename()
@@ -3350,6 +3467,7 @@ describe('TUI bg color', function()
   end)
 
   it('queries the terminal for background color', function()
+    t.skip_forced_multigrid_tui()
     exec_lua([[
       vim.api.nvim_create_autocmd('TermRequest', {
         callback = function(args)
@@ -3374,6 +3492,7 @@ describe('TUI bg color', function()
   end)
 
   it('triggers OptionSet from automatic background processing', function()
+    t.skip_forced_multigrid_tui()
     local screen = tt.setup_child_nvim({
       '--clean',
       '--cmd',
@@ -3422,6 +3541,7 @@ describe('TUI client', function()
   end)
 
   it('connects to remote instance (with its own TUI)', function()
+    t.skip_forced_multigrid_tui()
     local server_super = n.new_session(false)
     local client_super = n.new_session(true)
 
@@ -3494,6 +3614,7 @@ describe('TUI client', function()
   end)
 
   it('connects to remote instance (--headless)', function()
+    t.skip_forced_multigrid_tui()
     local server = n.new_session(false)
     local client_super = n.new_session(true, { env = { NVIM_LOG_FILE = testlog } })
 
@@ -3544,6 +3665,7 @@ describe('TUI client', function()
   end)
 
   it('throws error when no server exists', function()
+    t.skip_forced_multigrid_tui()
     clear()
     local screen = tt.setup_child_nvim({
       '--remote-ui',
@@ -3636,10 +3758,12 @@ describe('TUI client', function()
 
   describe('exits when server quits', function()
     it('with :quit', function()
+      t.skip_forced_multigrid_tui()
       test_remote_tui_quit()
     end)
 
     it('with :cquit', function()
+      t.skip_forced_multigrid_tui()
       test_remote_tui_quit(42)
     end)
   end)

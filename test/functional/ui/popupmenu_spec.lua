@@ -1105,6 +1105,7 @@ describe("builtin popupmenu 'pumblend'", function()
   end)
 
   it('256-color (non-RGB)', function()
+    t.skip_forced_mulitgrid('Only true color supported')
     local screen = Screen.new(60, 8, { rgb = false })
     screen:set_default_attr_ids({
       [1] = { foreground = Screen.colors.Grey0, background = tonumber('0x000007') },
@@ -3605,13 +3606,24 @@ describe('builtin popupmenu', function()
           },
         })
       else
-        screen:expect([[
-          some long   |
-          prefix      |
-          bef{n: word  }  |
-          tex{n: }^        |
-          {2:-- INSERT --}|
-        ]])
+        if screen.forced_multigrid then
+          -- With forced multigrid, as much as possible is rendered
+          screen:expect([[
+            some long   |
+            prefix      |
+            bef{n: word    }|
+            tex{n: ^choice  }|
+            {2:-- INSERT --}|
+          ]])
+        else
+          screen:expect([[
+            some long   |
+            prefix      |
+            bef{n: word  }  |
+            tex{n: }^        |
+            {2:-- INSERT --}|
+          ]])
+        end
       end
 
       -- can't draw the pum, but check we don't crash
