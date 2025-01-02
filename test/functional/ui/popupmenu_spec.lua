@@ -992,6 +992,7 @@ describe("builtin popupmenu 'pumblend'", function()
   end)
 
   it('256-color (non-RGB)', function()
+    t.skip_forced_mulitgrid('Only true color supported')
     screen._options.rgb = false
     command('set pumblend=10')
     insert([[
@@ -3510,13 +3511,23 @@ describe('builtin popupmenu', function()
           float_pos = { [4] = { -1, 'NW', 2, 2, 3, false, 100, 1, 2, 3 } },
         })
       else
-        screen:expect([[
-          some long   |
-          prefix      |
-          bef{n: word  }  |
-          tex{n: }^        |
-          {5:-- INSERT --}|
-        ]])
+        if t.is_forced_multigrid() then
+          -- There's no reason why the menu couldn't show choice
+          screen:expect([[
+            some long   |
+            prefix      |
+            bef{n: word    }|
+            tex{n: ^choice  }|
+            {5:-- INSERT --}|
+        else
+          screen:expect([[
+            some long   |
+            prefix      |
+            bef{n: word  }  |
+            tex{n: }^        |
+            {2:-- INSERT --}|
+          ]])
+        end
       end
 
       -- can't draw the pum, but check we don't crash

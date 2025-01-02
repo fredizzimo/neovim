@@ -1425,8 +1425,13 @@ end
 function Screen:_handle_grid_cursor_goto(grid, row, col)
   self._cursor.grid = grid
   assert(row >= 0 and col >= 0)
-  self._cursor.row = row + 1
-  self._cursor.col = col + 1
+  -- HACK: The non-multigrid UI ignores messages outside of the grid
+  -- And some of the external message tests are assuming that happens
+  -- But the cursor should really got the the message grid instead
+  if row < self._grids[grid].height and col < self._grids[grid].width then
+    self._cursor.row = row + 1
+    self._cursor.col = col + 1
+  end
 end
 
 function Screen:_handle_win_pos(grid, win, startrow, startcol, width, height)
