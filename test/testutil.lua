@@ -852,4 +852,10 @@ function M.translations_enabled()
   return M.paths.translations_enabled
 end
 
+--- @return boolean
+function M.is_forced_multigrid()
+  local forced_multigrid = os.getenv('NVIM_TEST_FORCE_MULTIGRID')
+  return forced_multigrid == '1' or forced_multigrid == ''
+end
+
 return M
