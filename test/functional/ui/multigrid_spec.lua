@@ -2858,3 +2858,25 @@ describe('ext_multigrid', function()
     end)
   end)
 end)
+
+it('headless attach with showcmd', function()
+  clear{args={'--headless'}}
+  local screen = Screen.new(80, 24, {ext_multigrid=true})
+  command('set showcmd')
+  feed('1234')
+  screen:expect({
+    grid = [[
+    ## grid 1
+      [2:--------------------------------------------------------------------------------]|*23
+      [3:--------------------------------------------------------------------------------]|
+    ## grid 2
+      ^                                                                                |
+      {1:~                                                                               }|*22
+    ## grid 3
+                                                                           1234       |
+    ]],
+    win_viewport = {
+      [2] = {win = 1000, topline = 0, botline = 2, curline = 0, curcol = 0, linecount = 1, sum_scroll_delta = 0};
+    },
+  })
+end)
