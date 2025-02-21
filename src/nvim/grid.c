@@ -932,7 +932,7 @@ void win_grid_alloc(win_T *wp)
   int total_rows = wp->w_height_outer;
   int total_cols = wp->w_width_outer;
 
-  bool want_allocation = ui_has(kUIMultigrid) || wp->w_floating;
+  bool want_allocation = true;
   bool has_allocation = (grid_allocated->chars != NULL);
 
   if (grid->rows != rows) {

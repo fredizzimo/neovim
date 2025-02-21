@@ -801,12 +801,10 @@ void ui_ext_win_position(win_T *wp, bool validate)
 {
   wp->w_pos_changed = false;
   if (!wp->w_floating) {
-    if (ui_has(kUIMultigrid)) {
       // Windows on the default grid don't necessarily have comp_col and comp_row set
       // But the rest of the calculations relies on it
       wp->w_grid_alloc.comp_col = wp->w_wincol;
       wp->w_grid_alloc.comp_row = wp->w_winrow;
-    }
     ui_call_win_pos(wp->w_grid_alloc.handle, wp->handle, wp->w_winrow,
                     wp->w_wincol, wp->w_width, wp->w_height);
     return;
@@ -910,7 +908,7 @@ void ui_ext_win_viewport(win_T *wp)
 {
   // NOTE: The win_viewport command is delayed until the next flush when there are pending updates.
   // This ensures that the updates and the viewport are sent together.
-  if ((wp == curwin || ui_has(kUIMultigrid)) && wp->w_viewport_invalid && wp->w_redr_type == 0) {
+  if (wp->w_viewport_invalid && wp->w_redr_type == 0) {
     const linenr_T line_count = wp->w_buffer->b_ml.ml_line_count;
     // Avoid ml_get errors when producing "scroll_delta".
     const linenr_T cur_topline = MIN(wp->w_topline, line_count);
@@ -1284,13 +1282,7 @@ win_T *win_split_ins(int size, int flags, win_T *new_wp, int dir, frame_T *to_fl
     win_init(wp, curwin, flags);
   } else if (wp->w_floating) {
     ui_comp_remove_grid(&wp->w_grid_alloc);
-    if (ui_has(kUIMultigrid)) {
-      wp->w_pos_changed = true;
-    } else {
-      // No longer a float, a non-multigrid UI shouldn't draw it as such
-      ui_call_win_hide(wp->w_grid_alloc.handle);
-      win_free_grid(wp, true);
-    }
+    wp->w_pos_changed = true;
 
     // External windows are independent of tabpages, and may have been the curwin of others.
     if (wp->w_config.external) {
