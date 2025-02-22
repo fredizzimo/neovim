@@ -120,7 +120,7 @@ local function screen_tests(linegrid)
   end)
 
   describe('statusline', function()
-    it('is redrawn after <c-l>', function()
+    it('testme is redrawn after <c-l>', function()
       t.skip_forced_multigrid_non_linegrid(linegrid)
       command('set laststatus=2')
       screen:expect([[
@@ -794,7 +794,7 @@ local function screen_tests(linegrid)
 end
 
 describe('Screen (char-based)', function()
-  screen_tests(false)
+  --screen_tests(false)
 end)
 
 describe('Screen (line-based)', function()

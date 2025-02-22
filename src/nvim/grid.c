@@ -34,6 +34,7 @@
 #include "nvim/optionstr.h"
 #include "nvim/types_defs.h"
 #include "nvim/ui.h"
+#include "nvim/ui_compositor.h"
 #include "nvim/ui_defs.h"
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
@@ -970,6 +971,8 @@ void win_grid_alloc(win_T *wp)
     grid->target = grid_allocated;
     grid->row_offset = wp->w_winrow_off;
     grid->col_offset = wp->w_wincol_off;
+    ui_comp_put_grid(&wp->w_grid_alloc, grid->row_offset, grid->col_offset,
+                       wp->w_height_outer, wp->w_width_outer, true, false);
   } else {
     grid->target = &default_grid;
     grid->row_offset = wp->w_winrow + wp->w_winrow_off;

@@ -241,9 +241,7 @@ void screenclear(void)
   redraw_popupmenu = true;
   pum_invalidate();
   FOR_ALL_WINDOWS_IN_TAB(wp, curtab) {
-    if (wp->w_floating) {
-      wp->w_redr_type = UPD_CLEAR;
-    }
+    wp->w_redr_type = UPD_CLEAR;
   }
   if (must_redraw == UPD_CLEAR) {
     must_redraw = UPD_NOT_VALID;  // no need to clear again

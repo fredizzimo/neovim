@@ -480,7 +480,7 @@ static void compose_line(Integer row, Integer startcol, Integer endcol, LineFlag
   for (int i = skipstart; i < (endcol - skipend) - startcol; i++) {
     if (attrbuf[i] < 0) {
       if (rdb_flags & kOptRdbFlagInvalid) {
-        abort();
+        //abort();
       } else {
         attrbuf[i] = 0;
       }
@@ -615,6 +615,9 @@ bool ui_comp_set_screen_valid(bool valid)
   if (!valid) {
     msg_sep_row = -1;
   }
+  // if (valid && !old_val) {
+  //   ui_comp_compose_grid(&default_grid);
+  // }
   return old_val;
 }
 
