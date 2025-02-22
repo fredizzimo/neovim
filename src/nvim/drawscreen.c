@@ -625,7 +625,7 @@ int update_screen(void)
   screen_search_hl.rm.regprog = NULL;
 
   FOR_ALL_WINDOWS_IN_TAB(wp, curtab) {
-    if (wp->w_redr_type == UPD_CLEAR && wp->w_floating && wp->w_grid_alloc.chars) {
+    if (wp->w_redr_type == UPD_CLEAR && wp->w_grid_alloc.chars) {
       grid_invalidate(&wp->w_grid_alloc);
       wp->w_redr_type = UPD_NOT_VALID;
     }
