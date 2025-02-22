@@ -801,10 +801,6 @@ void ui_ext_win_position(win_T *wp, bool validate)
 {
   wp->w_pos_changed = false;
   if (!wp->w_floating) {
-      // Windows on the default grid don't necessarily have comp_col and comp_row set
-      // But the rest of the calculations relies on it
-      wp->w_grid_alloc.comp_col = wp->w_wincol;
-      wp->w_grid_alloc.comp_row = wp->w_winrow;
     ui_call_win_pos(wp->w_grid_alloc.handle, wp->handle, wp->w_winrow,
                     wp->w_wincol, wp->w_width, wp->w_height);
     return;
@@ -4494,18 +4490,17 @@ static void tabpage_check_windows(tabpage_T *old_curtab)
   win_T *next_wp;
   for (win_T *wp = old_curtab->tp_firstwin; wp; wp = next_wp) {
     next_wp = wp->w_next;
-    if (wp->w_floating) {
-      if (wp->w_config.external) {
-        win_remove(wp, old_curtab);
-        win_append(lastwin_nofloating(), wp, NULL);
-      } else {
-        ui_comp_remove_grid(&wp->w_grid_alloc);
-      }
+    if (wp->w_config.external) {
+      win_remove(wp, old_curtab);
+      win_append(lastwin_nofloating(), wp, NULL);
+    } else {
+      ui_comp_remove_grid(&wp->w_grid_alloc);
     }
     wp->w_pos_changed = true;
   }
 
   for (win_T *wp = firstwin; wp; wp = wp->w_next) {
+    // TODO: Deal with non-floating
     if (wp->w_floating && !wp->w_config.external) {
       win_config_float(wp, wp->w_config);
     }

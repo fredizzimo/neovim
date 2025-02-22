@@ -646,12 +646,6 @@ int update_screen(void)
       }
       win_update(wp);
     }
-
-    // redraw status line and window bar after the window to minimize cursor movement
-    if (wp->w_redr_status) {
-      win_redr_winbar(wp);
-      win_redr_status(wp);
-    }
   }
 
   end_search_hl();
@@ -695,6 +689,7 @@ int update_screen(void)
   if (!ui_has(kUICmdline)) {
     cmdline_was_last_drawn = false;
   }
+  redraw_statuslines();
   return OK;
 }
 
