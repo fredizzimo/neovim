@@ -575,7 +575,7 @@ void pum_redraw(void)
 
   pum_left_col = pum_col - col_off;
   bool moved = ui_comp_put_grid(&pum_grid, pum_row, pum_left_col,
-                                pum_height, grid_width, false, true);
+                                pum_height, grid_width, false, true, false);
   bool invalid_grid = moved || pum_invalid;
   pum_invalid = false;
   must_redraw_pum = false;

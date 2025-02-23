@@ -156,7 +156,7 @@ void ui_comp_layers_adjust(size_t layer_idx, bool raise)
 /// though that will require slight event order adjustment: emit the win_pos
 /// events in the beginning of update_screen(), rather than in ui_flush()
 bool ui_comp_put_grid(ScreenGrid *grid, int row, int col, int height, int width, bool valid,
-                      bool on_top)
+                      bool on_top, bool reordered)
 {
 #ifndef NDEBUG
     assert(kv_A(layers, 0) == &default_grid);
@@ -249,7 +249,7 @@ bool ui_comp_put_grid(ScreenGrid *grid, int row, int col, int height, int width,
     }
 #endif
   }
-  if (moved && valid && ui_comp_should_draw()) {
+  if ((moved || reordered) && valid && ui_comp_should_draw()) {
     compose_area(grid->comp_row, grid->comp_row + grid->rows,
                  grid->comp_col, grid->comp_col + grid->cols);
   }

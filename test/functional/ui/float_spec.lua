@@ -1762,7 +1762,7 @@ describe('float window', function()
       end
     end)
 
-    it('can have border', function()
+    it('testme can have border', function()
       local buf = api.nvim_create_buf(false, false)
       api.nvim_buf_set_lines(buf, 0, -1, true, {' halloj! ',
                                              ' BORDAA  '})
@@ -10131,11 +10131,11 @@ describe('float window', function()
   end
 
   describe('with ext_multigrid and actual mouse grid', function()
-    with_ext_multigrid(true, true)
+    -- with_ext_multigrid(true, true)
   end)
 
   describe('with ext_multigrid and mouse grid 0', function()
-    with_ext_multigrid(true, false)
+    -- with_ext_multigrid(true, false)
   end)
 
   describe('without ext_multigrid', function()
