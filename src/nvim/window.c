@@ -2808,16 +2808,14 @@ int win_close(win_T *win, bool free_buf, bool force)
     ui_call_win_close(win->w_grid_alloc.handle);
   }
 
-  if (win->w_floating) {
-    ui_comp_remove_grid(&win->w_grid_alloc);
-    assert(first_tabpage != NULL);  // suppress clang "Dereference of NULL pointer"
-    if (win->w_config.external) {
-      FOR_ALL_TABS(tp) {
-        if (tp != curtab && tp->tp_curwin == win) {
-          // NB: an autocmd can still abort the closing of this window,
-          // but carrying out this change anyway shouldn't be a catastrophe.
-          tp->tp_curwin = tp->tp_firstwin;
-        }
+  ui_comp_remove_grid(&win->w_grid_alloc);
+  assert(first_tabpage != NULL);  // suppress clang "Dereference of NULL pointer"
+  if (win->w_config.external) {
+    FOR_ALL_TABS(tp) {
+      if (tp != curtab && tp->tp_curwin == win) {
+        // NB: an autocmd can still abort the closing of this window,
+        // but carrying out this change anyway shouldn't be a catastrophe.
+        tp->tp_curwin = tp->tp_firstwin;
       }
     }
   }

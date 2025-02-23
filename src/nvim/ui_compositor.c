@@ -110,6 +110,14 @@ bool ui_comp_should_draw(void)
 /// @param[in]  raise      Raise the layer if true, else lower it.
 void ui_comp_layers_adjust(size_t layer_idx, bool raise)
 {
+#ifndef NDEBUG
+    assert(kv_A(layers, 0) == &default_grid);
+    for (size_t i = 0; i < kv_size(layers); i++) {
+      if (kv_A(layers, i)->comp_index != i) {
+        abort();
+      }
+    }
+#endif
   size_t size = layers.size;
   ScreenGrid *layer = layers.items[layer_idx];
 
@@ -131,6 +139,14 @@ void ui_comp_layers_adjust(size_t layer_idx, bool raise)
   layers.items[layer_idx] = layer;
   layer->comp_index = layer_idx;
   layer->composition_updated = true;
+#ifndef NDEBUG
+  assert(kv_A(layers, 0) == &default_grid);
+  for (size_t i = 0; i < kv_size(layers); i++) {
+    if (kv_A(layers, i)->comp_index != i) {
+      abort();
+    }
+  }
+#endif
 }
 
 /// Places `grid` at (col,row) position with (width * height) size.
@@ -142,6 +158,14 @@ void ui_comp_layers_adjust(size_t layer_idx, bool raise)
 bool ui_comp_put_grid(ScreenGrid *grid, int row, int col, int height, int width, bool valid,
                       bool on_top)
 {
+#ifndef NDEBUG
+    assert(kv_A(layers, 0) == &default_grid);
+    for (size_t i = 0; i < kv_size(layers); i++) {
+      if (kv_A(layers, i)->comp_index != i) {
+        abort();
+      }
+    }
+#endif
   bool moved;
   grid->composition_updated = true;
 
@@ -172,10 +196,21 @@ bool ui_comp_put_grid(ScreenGrid *grid, int row, int col, int height, int width,
     }
     grid->comp_row = row;
     grid->comp_col = col;
+#ifndef NDEBUG
+    assert(kv_A(layers, 0) == &default_grid);
+    for (size_t i = 0; i < kv_size(layers); i++) {
+      if (kv_A(layers, i)->comp_index != i) {
+        abort();
+      }
+    }
+#endif
   } else {
     moved = true;
 #ifndef NDEBUG
     for (size_t i = 0; i < kv_size(layers); i++) {
+      if (kv_A(layers, i)->comp_index != i) {
+        abort();
+      }
       if (kv_A(layers, i) == grid) {
         abort();
       }
@@ -205,6 +240,14 @@ bool ui_comp_put_grid(ScreenGrid *grid, int row, int col, int height, int width,
     grid->comp_col = col;
     grid->comp_index = insert_at;
     grid->composition_updated = true;
+#ifndef NDEBUG
+    assert(kv_A(layers, 0) == &default_grid);
+    for (size_t i = 0; i < kv_size(layers); i++) {
+      if (kv_A(layers, i)->comp_index != i) {
+        abort();
+      }
+    }
+#endif
   }
   if (moved && valid && ui_comp_should_draw()) {
     compose_area(grid->comp_row, grid->comp_row + grid->rows,
@@ -233,6 +276,18 @@ void ui_comp_remove_grid(ScreenGrid *grid)
   (void)kv_pop(layers);
   grid->comp_index = 0;
   grid->composition_updated = true;
+
+#ifndef NDEBUG
+  assert(kv_A(layers, 0) == &default_grid);
+  for (size_t i = 0; i < kv_size(layers); i++) {
+    if (kv_A(layers, i)->comp_index != i) {
+      abort();
+    }
+    if (kv_A(layers, i) == grid) {
+      abort();
+    }
+  }
+#endif
 
   // recompose the area under the grid
   // inefficient when being overlapped: only draw up to grid->comp_index
@@ -278,6 +333,14 @@ void ui_comp_raise_grid(ScreenGrid *grid, size_t new_index)
                  MIN(grid->comp_row + grid->rows, grid2->comp_row + grid2->rows),
                  startcol, endcol);
   }
+#ifndef NDEBUG
+  assert(kv_A(layers, 0) == &default_grid);
+  for (size_t i = 0; i < kv_size(layers); i++) {
+    if (kv_A(layers, i)->comp_index != i) {
+      abort();
+    }
+  }
+#endif
 }
 
 void ui_comp_grid_cursor_goto(Integer grid_handle, Integer r, Integer c)
@@ -301,6 +364,14 @@ void ui_comp_grid_cursor_goto(Integer grid_handle, Integer r, Integer c)
       ui_comp_raise_grid(curgrid, new_index);
     }
   }
+#ifndef NDEBUG
+  assert(kv_A(layers, 0) == &default_grid);
+  for (size_t i = 0; i < kv_size(layers); i++) {
+    if (kv_A(layers, i)->comp_index != i) {
+      abort();
+    }
+  }
+#endif
 
   if (cursor_col >= default_grid.cols || cursor_row >= default_grid.rows) {
     // TODO(bfredl): this happens with 'writedelay', refactor?
