@@ -41,6 +41,8 @@ kvec_t(ScreenGrid *) layers = KV_INITIAL_VALUE;
 static size_t bufsize = 0;
 static schar_T *linebuf;
 static sattr_T *attrbuf;
+static schar_T *bg_linebuf;
+static sattr_T *bg_attrbuf;
 
 #ifndef NDEBUG
 static int chk_width = 0, chk_height = 0;
@@ -169,30 +171,36 @@ bool ui_comp_put_grid(ScreenGrid *grid, int row, int col, int height, int width,
 #endif
   bool moved;
   grid->composition_updated = true;
-
+  int old_height = grid->comp_height;
+  int old_width = grid->comp_width;
   grid->comp_height = height;
   grid->comp_width = width;
+
   if (grid->comp_index != 0) {
     moved = (row != grid->comp_row) || (col != grid->comp_col);
+    moved = true;
     if (ui_comp_should_draw()) {
       // Redraw the area covered by the old position, and is not covered
       // by the new position. Disable the grid so that compose_area() will not
       // use it.
       grid->comp_disabled = true;
-      compose_area(grid->comp_row, row,
-                   grid->comp_col, grid->comp_col + grid->cols);
-      if (grid->comp_col < col) {
-        compose_area(MAX(row, grid->comp_row),
-                     MIN(row + height, grid->comp_row + grid->rows),
-                     grid->comp_col, col);
-      }
-      if (col + width < grid->comp_col + grid->cols) {
-        compose_area(MAX(row, grid->comp_row),
-                     MIN(row + height, grid->comp_row + grid->rows),
-                     col + width, grid->comp_col + grid->cols);
-      }
-      compose_area(row + height, grid->comp_row + grid->rows,
-                   grid->comp_col, grid->comp_col + grid->cols);
+      //TODO: Add the optimization back
+      compose_area(grid->comp_row, grid->comp_row + old_height,
+                   grid->comp_col, grid->comp_col + old_width);
+      // compose_area(grid->comp_row, row,
+      //              grid->comp_col, grid->comp_col + grid->cols);
+      // if (grid->comp_col < col) {
+      //   compose_area(MAX(row, grid->comp_row),
+      //                MIN(row + height, grid->comp_row + grid->rows),
+      //                grid->comp_col, col);
+      // }
+      // if (col + width < grid->comp_col + grid->cols) {
+      //   compose_area(MAX(row, grid->comp_row),
+      //                MIN(row + height, grid->comp_row + grid->rows),
+      //                col + width, grid->comp_col + grid->cols);
+      // }
+      // compose_area(row + height, grid->comp_row + grid->rows,
+      //              grid->comp_col, grid->comp_col + grid->cols);
       grid->comp_disabled = false;
     }
     grid->comp_row = row;
@@ -250,6 +258,7 @@ bool ui_comp_put_grid(ScreenGrid *grid, int row, int col, int height, int width,
     }
 #endif
   }
+
   if ((moved || reordered) && valid && ui_comp_should_draw()) {
     compose_area(grid->comp_row, grid->comp_row + grid->rows,
                  grid->comp_col, grid->comp_col + grid->cols);
@@ -433,8 +442,11 @@ static void compose_bg_or_fg(int row, int startcol, int endcol, int skipstart, i
   schar_T *dest_line = linebuf;
   sattr_T *dest_attrs = attrbuf;
   if (is_bg) {
-    dest_line = bg_line;
-    dest_attrs = bg_attrs;
+    dest_line = bg_linebuf;
+    dest_attrs = bg_attrbuf;
+  } else {
+    bg_line = bg_linebuf;
+    bg_attrs = bg_attrbuf;
   }
 
   ScreenGrid *grid = NULL;
@@ -443,7 +455,7 @@ static void compose_bg_or_fg(int row, int startcol, int endcol, int skipstart, i
     int until = 0;
     for (size_t i = 0; i < kv_size(layers); i++) {
       ScreenGrid *g = kv_A(layers, i);
-      if (is_bg && g->zindex > 1) {
+      if (is_bg && g->zindex > 0) {
         break;
       }
       // compose_line may have been called after a shrinking operation but
@@ -483,8 +495,10 @@ static void compose_bg_or_fg(int row, int startcol, int endcol, int skipstart, i
     } else {
       size_t off = grid->line_offset[row - grid->comp_row]
                    + (size_t)(col - grid->comp_col);
-      memcpy(dest_line + (col - startcol), grid->chars + off, n * sizeof(*linebuf));
-      memcpy(dest_attrs + (col - startcol), grid->attrs + off, n * sizeof(*attrbuf));
+      if (!(is_bg && grid == &default_grid)) {
+        memcpy(dest_line + (col - startcol), grid->chars + off, n * sizeof(*linebuf));
+        memcpy(dest_attrs + (col - startcol), grid->attrs + off, n * sizeof(*attrbuf));
+      }
       if (grid->comp_col + grid->cols > until
           && grid->chars[off + n] == NUL) {
         dest_line[until - 1 - startcol] = schar_from_ascii(' ');
@@ -519,7 +533,9 @@ static void compose_bg_or_fg(int row, int startcol, int endcol, int skipstart, i
     // Tricky: if overlap caused a doublewidth char to get cut-off, must
     // replace the visible half with a space.
     if (dest_line[col - startcol] == NUL) {
-      dest_line[col - startcol] = schar_from_ascii(' ');
+      if (!is_bg) {
+        dest_line[col - startcol] = schar_from_ascii(' ');
+      }
       if (col == endcol - 1) {
         skipend = 0;
       }
@@ -543,11 +559,10 @@ static void compose_bg_or_fg(int row, int startcol, int endcol, int skipstart, i
   if (!is_bg) {
     for (int i = skipstart; i < (endcol - skipend) - startcol; i++) {
       if (dest_attrs[i] < 0) {
+        dest_attrs[i] = 0;
         if (rdb_flags & kOptRdbFlagInvalid) {
-          abort();
-        } else {
-          dest_attrs[i] = 0;
-        }
+          // abort();
+        } else {}
       }
     }
     ui_composed_call_raw_line(1, row, startcol + skipstart,
@@ -578,7 +593,7 @@ static void compose_line(Integer row, Integer startcol, Integer endcol, LineFlag
     skipend = 1;
   }
 
-  // Compose the bg (all grids with zindex = 0) first, writing to default_grid
+  // Compose the bg (all grids with zindex = 0) first
   compose_bg_or_fg(row, startcol, endcol, skipstart, skipend, flags, true);
   // Then the fg
   compose_bg_or_fg(row, startcol, endcol, skipstart, skipend, flags, false);
@@ -808,6 +823,10 @@ void ui_comp_grid_resize(Integer grid, Integer width, Integer height)
       xfree(attrbuf);
       linebuf = xmalloc(new_bufsize * sizeof(*linebuf));
       attrbuf = xmalloc(new_bufsize * sizeof(*attrbuf));
+      xfree(bg_linebuf);
+      xfree(bg_attrbuf);
+      bg_linebuf = xmalloc(new_bufsize * sizeof(*linebuf));
+      bg_attrbuf = xmalloc(new_bufsize * sizeof(*attrbuf));
       bufsize = new_bufsize;
     }
   }

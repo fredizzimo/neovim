@@ -1012,7 +1012,7 @@ describe('float window', function()
     end)
   end)
 
-  it('placed relative to tabline and laststatus', function()
+  it('testme placed relative to tabline and laststatus', function()
     local screen = Screen.new(20, 10)
     screen:add_extra_attr_ids({ [100] = { bold = true, foreground = Screen.colors.Magenta } })
     command('set showtabline=1 laststatus=1')
@@ -1762,7 +1762,7 @@ describe('float window', function()
       end
     end)
 
-    it('testme can have border', function()
+    it('can have border', function()
       local buf = api.nvim_create_buf(false, false)
       api.nvim_buf_set_lines(buf, 0, -1, true, {' halloj! ',
                                              ' BORDAA  '})
