@@ -495,10 +495,8 @@ static void compose_bg_or_fg(int row, int startcol, int endcol, int skipstart, i
     } else {
       size_t off = grid->line_offset[row - grid->comp_row]
                    + (size_t)(col - grid->comp_col);
-      if (!(is_bg && grid == &default_grid)) {
-        memcpy(dest_line + (col - startcol), grid->chars + off, n * sizeof(*linebuf));
-        memcpy(dest_attrs + (col - startcol), grid->attrs + off, n * sizeof(*attrbuf));
-      }
+      memcpy(dest_line + (col - startcol), grid->chars + off, n * sizeof(*linebuf));
+      memcpy(dest_attrs + (col - startcol), grid->attrs + off, n * sizeof(*attrbuf));
       if (grid->comp_col + grid->cols > until
           && grid->chars[off + n] == NUL) {
         dest_line[until - 1 - startcol] = schar_from_ascii(' ');

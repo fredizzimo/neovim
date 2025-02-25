@@ -1012,7 +1012,7 @@ describe('float window', function()
     end)
   end)
 
-  it('testme placed relative to tabline and laststatus', function()
+  it('placed relative to tabline and laststatus', function()
     local screen = Screen.new(20, 10)
     screen:add_extra_attr_ids({ [100] = { bold = true, foreground = Screen.colors.Magenta } })
     command('set showtabline=1 laststatus=1')
@@ -8688,7 +8688,7 @@ describe('float window', function()
       end
     end)
 
-    it("correctly orders multiple opened floats (current last)", function()
+    it("testme correctly orders multiple opened floats (current last)", function()
       local buf = api.nvim_create_buf(false,false)
       local win = api.nvim_open_win(buf, false, {relative='editor', width=20, height=2, row=2, col=5})
       api.nvim_set_option_value("winhl", "Normal:ErrorMsg,EndOfBuffer:ErrorMsg", {win=win})
@@ -8707,7 +8707,7 @@ describe('float window', function()
           {7:                    }|
           {7:~                   }|
         ]], float_pos={
-          [4] = {1001, "NW", 1, 2, 5, true, 50, 1, 2, 5};
+          [4] = {1001, "NW", 1, 2, 5, true, 50, 2, 2, 5};
         }, win_viewport={
           [2] = {win = 1000, topline = 0, botline = 2, curline = 0, curcol = 0, linecount = 1, sum_scroll_delta = 0};
           [4] = {win = 1001, topline = 0, botline = 2, curline = 0, curcol = 0, linecount = 1, sum_scroll_delta = 0};
@@ -8752,9 +8752,9 @@ describe('float window', function()
           {17:^            }|
           {17:~           }|
         ]], float_pos={
-          [4] = {1001, "NW", 1, 2, 5, true, 50, 1, 2, 5};
-          [5] = {1002, "NW", 1, 3, 8, true, 50, 2, 3, 8};
-          [6] = {1003, "NW", 1, 4, 10, true, 50, 3, 4, 10};
+          [4] = {1001, "NW", 1, 2, 5, true, 50, 2, 2, 5};
+          [5] = {1002, "NW", 1, 3, 8, true, 50, 3, 3, 8};
+          [6] = {1003, "NW", 1, 4, 10, true, 50, 4, 4, 10};
         }, win_viewport={
           [2] = {win = 1000, topline = 0, botline = 2, curline = 0, curcol = 0, linecount=1, sum_scroll_delta = 0};
           [4] = {win = 1001, topline = 0, botline = 2, curline = 0, curcol = 0, linecount=1, sum_scroll_delta = 0};
@@ -8806,9 +8806,9 @@ describe('float window', function()
           }
         },
           float_pos = {
-          [4] = {1001, "NW", 1, 2, 5, true, 50, 3, 2, 5};
-          [5] = {1002, "NW", 1, 3, 8, true, 50, 1, 3, 8};
-          [6] = {1003, "NW", 1, 4, 10, true, 50, 2, 4, 10};
+          [4] = {1001, "NW", 1, 2, 5, true, 50, 4, 2, 5};
+          [5] = {1002, "NW", 1, 3, 8, true, 50, 2, 3, 8};
+          [6] = {1003, "NW", 1, 4, 10, true, 50, 3, 4, 10};
         },
           win_viewport = {
           [2] = {win = 1000, topline = 0, botline = 2, curline = 0, curcol = 0, linecount = 1, sum_scroll_delta = 0};

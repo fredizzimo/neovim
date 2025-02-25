@@ -803,6 +803,8 @@ void ui_ext_win_position(win_T *wp, bool validate)
   if (!wp->w_floating) {
     ui_call_win_pos(wp->w_grid_alloc.handle, wp->handle, wp->w_winrow,
                     wp->w_wincol, wp->w_width, wp->w_height);
+    ui_comp_put_grid(&wp->w_grid_alloc, wp->w_winrow, wp->w_wincol,
+                     wp->w_height_outer, wp->w_width_outer, true, false, false);
     return;
   }
 
