@@ -408,7 +408,7 @@ static void compose_bg_or_fg(int row, int startcol, int endcol, int skipstart, i
     assert(until <= default_grid.cols);
     size_t n = (size_t)(until - col);
 
-    if (row == msg_sep_row && grid->comp_index <= msg_grid.comp_index) {
+    if (!is_bg && row == msg_sep_row && grid->comp_index <= msg_grid.comp_index) {
       // TODO(bfredl): when we implement borders around floating windows, then
       // msgsep can just be a border "around" the message grid.
       grid = &msg_grid;
