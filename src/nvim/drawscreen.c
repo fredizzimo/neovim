@@ -495,11 +495,9 @@ int update_screen(void)
       }
     }
     msg_grid.throttled = false;
-    bool was_invalidated = false;
 
     // UPD_CLEAR is already handled
     if (type == UPD_NOT_VALID && msg_scrolled) {
-      was_invalidated = ui_comp_set_screen_valid(false);
       for (int i = valid; i < Rows - p_ch; i++) {
         grid_clear_line(&default_grid, default_grid.line_offset[i],
                         Columns, false);
@@ -523,12 +521,6 @@ int update_screen(void)
     }
     msg_grid_set_pos(Rows - (int)p_ch, false);
     msg_grid_invalid = false;
-    if (was_invalidated) {
-      // screen was only invalid for the msgarea part.
-      // @TODO(bfredl): using the same "valid" flag
-      // for both messages and floats moving is bit of a mess.
-      ui_comp_set_screen_valid(true);
-    }
     msg_scrolled = 0;
     msg_scrolled_at_flush = 0;
     msg_grid_scroll_discount = 0;
