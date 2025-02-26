@@ -159,7 +159,7 @@ void ui_comp_layers_adjust(size_t layer_idx, bool raise)
 /// though that will require slight event order adjustment: emit the win_pos
 /// events in the beginning of update_screen(), rather than in ui_flush()
 bool ui_comp_put_grid(ScreenGrid *grid, int row, int col, int height, int width, bool valid,
-                      bool on_top, bool reordered)
+                      bool on_top)
 {
 #ifndef NDEBUG
   assert(kv_A(layers, 0) == &default_grid);
@@ -171,36 +171,30 @@ bool ui_comp_put_grid(ScreenGrid *grid, int row, int col, int height, int width,
 #endif
   bool moved;
   grid->composition_updated = true;
-  int old_height = grid->comp_height;
-  int old_width = grid->comp_width;
   grid->comp_height = height;
   grid->comp_width = width;
 
   if (grid->comp_index != 0) {
     moved = (row != grid->comp_row) || (col != grid->comp_col);
-    moved = true;
     if (ui_comp_should_draw()) {
       // Redraw the area covered by the old position, and is not covered
       // by the new position. Disable the grid so that compose_area() will not
       // use it.
       grid->comp_disabled = true;
-      //TODO: Add the optimization back
-      compose_area(grid->comp_row, grid->comp_row + old_height,
-                   grid->comp_col, grid->comp_col + old_width);
-      // compose_area(grid->comp_row, row,
-      //              grid->comp_col, grid->comp_col + grid->cols);
-      // if (grid->comp_col < col) {
-      //   compose_area(MAX(row, grid->comp_row),
-      //                MIN(row + height, grid->comp_row + grid->rows),
-      //                grid->comp_col, col);
-      // }
-      // if (col + width < grid->comp_col + grid->cols) {
-      //   compose_area(MAX(row, grid->comp_row),
-      //                MIN(row + height, grid->comp_row + grid->rows),
-      //                col + width, grid->comp_col + grid->cols);
-      // }
-      // compose_area(row + height, grid->comp_row + grid->rows,
-      //              grid->comp_col, grid->comp_col + grid->cols);
+      compose_area(grid->comp_row, row,
+                   grid->comp_col, grid->comp_col + grid->cols);
+      if (grid->comp_col < col) {
+        compose_area(MAX(row, grid->comp_row),
+                     MIN(row + height, grid->comp_row + grid->rows),
+                     grid->comp_col, col);
+      }
+      if (col + width < grid->comp_col + grid->cols) {
+        compose_area(MAX(row, grid->comp_row),
+                     MIN(row + height, grid->comp_row + grid->rows),
+                     col + width, grid->comp_col + grid->cols);
+      }
+      compose_area(row + height, grid->comp_row + grid->rows,
+                   grid->comp_col, grid->comp_col + grid->cols);
       grid->comp_disabled = false;
     }
     grid->comp_row = row;
@@ -259,7 +253,7 @@ bool ui_comp_put_grid(ScreenGrid *grid, int row, int col, int height, int width,
 #endif
   }
 
-  if ((moved || reordered) && valid && ui_comp_should_draw()) {
+  if (moved && valid && ui_comp_should_draw()) {
     compose_area(grid->comp_row, grid->comp_row + grid->rows,
                  grid->comp_col, grid->comp_col + grid->cols);
   }

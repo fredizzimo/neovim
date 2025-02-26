@@ -804,7 +804,7 @@ void ui_ext_win_position(win_T *wp, bool validate)
     ui_call_win_pos(wp->w_grid_alloc.handle, wp->handle, wp->w_winrow,
                     wp->w_wincol, wp->w_width, wp->w_height);
     ui_comp_put_grid(&wp->w_grid_alloc, wp->w_winrow, wp->w_wincol,
-                     wp->w_height_outer, wp->w_width_outer, true, false, false);
+                     wp->w_height_outer, wp->w_width_outer, true, false);
     return;
   }
 
@@ -876,7 +876,7 @@ void ui_ext_win_position(win_T *wp, bool validate)
 
     if (!c.hide) {
       ui_comp_put_grid(&wp->w_grid_alloc, comp_row, comp_col,
-                       wp->w_height_outer, wp->w_width_outer, valid, false, resort);
+                       wp->w_height_outer, wp->w_width_outer, valid, false);
       if (ui_has(kUIMultigrid)) {
         String anchor = cstr_as_string(float_anchor_str[c.anchor]);
         ui_call_win_float_pos(wp->w_grid_alloc.handle, wp->handle, anchor,
