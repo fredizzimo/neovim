@@ -894,7 +894,13 @@ end
 --- @param cond? boolean
 function M.skip_forced_multigrid_inccomand_split(cond)
   local reason = 'FIXME: Inccommand split does not work with multigrid #24802'
-  M.skip_forced_mulitgrid(reason, cond, 3)
+  -- M.skip_forced_mulitgrid(reason, cond, 3)
+  local stackdepth = 2
+  if cond == nil or cond then
+    --- @type fun(reason: string)
+    local pending = getfenv(stackdepth).pending
+    pending('skipped forced multigrid test: ' .. reason)
+  end
 end
 
 function M.skip_forced_multigrid_command_c_c()
