@@ -46,7 +46,7 @@ describe('ui/ext_popupmenu', function()
       popupmenu = {
         items = expected,
         pos = 0,
-        anchor = { 1, 1, 0 },
+        anchor = { 2, 1, 0 },
       },
     }
 
@@ -61,7 +61,7 @@ describe('ui/ext_popupmenu', function()
       popupmenu = {
         items = expected,
         pos = -1,
-        anchor = { 1, 1, 0 },
+        anchor = { 2, 1, 0 },
       },
     }
 
@@ -77,7 +77,7 @@ describe('ui/ext_popupmenu', function()
       popupmenu = {
         items = expected,
         pos = 1,
-        anchor = { 1, 1, 0 },
+        anchor = { 2, 1, 0 },
       },
     }
 
@@ -104,7 +104,7 @@ describe('ui/ext_popupmenu', function()
       popupmenu = {
         items = expected,
         pos = 0,
-        anchor = { 1, 1, 0 },
+        anchor = { 2, 1, 0 },
       },
     }
 
@@ -119,7 +119,7 @@ describe('ui/ext_popupmenu', function()
       popupmenu = {
         items = expected,
         pos = 1,
-        anchor = { 1, 1, 0 },
+        anchor = { 2, 1, 0 },
       },
     }
 
@@ -134,7 +134,7 @@ describe('ui/ext_popupmenu', function()
       popupmenu = {
         items = expected,
         pos = 2,
-        anchor = { 1, 1, 0 },
+        anchor = { 2, 1, 0 },
       },
     }
 
@@ -157,7 +157,7 @@ describe('ui/ext_popupmenu', function()
       popupmenu = {
         items = expected,
         pos = 0,
-        anchor = { 1, 1, 0 },
+        anchor = { 2, 1, 0 },
       },
     }
 
@@ -172,7 +172,7 @@ describe('ui/ext_popupmenu', function()
       popupmenu = {
         items = expected,
         pos = -1,
-        anchor = { 1, 1, 0 },
+        anchor = { 2, 1, 0 },
       },
     }
 
@@ -187,7 +187,7 @@ describe('ui/ext_popupmenu', function()
       popupmenu = {
         items = expected,
         pos = 1,
-        anchor = { 1, 1, 0 },
+        anchor = { 2, 1, 0 },
       },
     }
 
@@ -202,7 +202,7 @@ describe('ui/ext_popupmenu', function()
       popupmenu = {
         items = expected,
         pos = -1,
-        anchor = { 1, 1, 0 },
+        anchor = { 2, 1, 0 },
       },
     }
 
@@ -217,7 +217,7 @@ describe('ui/ext_popupmenu', function()
       popupmenu = {
         items = expected,
         pos = 0,
-        anchor = { 1, 1, 0 },
+        anchor = { 2, 1, 0 },
       },
     }
 
@@ -326,7 +326,7 @@ describe('ui/ext_popupmenu', function()
         popupmenu = {
           items = expected,
           pos = 0,
-          anchor = { 1, 1, 0 },
+          anchor = { 2, 1, 0 },
         },
       }
 
@@ -341,7 +341,7 @@ describe('ui/ext_popupmenu', function()
         popupmenu = {
           items = expected,
           pos = 2,
-          anchor = { 1, 1, 0 },
+          anchor = { 2, 1, 0 },
         },
       }
 
@@ -356,7 +356,7 @@ describe('ui/ext_popupmenu', function()
         popupmenu = {
           items = expected,
           pos = -1,
-          anchor = { 1, 1, 0 },
+          anchor = { 2, 1, 0 },
         },
       }
 
@@ -613,7 +613,7 @@ describe('ui/ext_popupmenu', function()
         popupmenu = {
           items = month_expected,
           pos = pum_height - 2,
-          anchor = { 1, 1, 0 },
+          anchor = { 2, 1, 0 },
         },
       }
     end)
@@ -665,7 +665,7 @@ describe('ui/ext_popupmenu', function()
         popupmenu = {
           items = month_expected,
           pos = pum_height - 2,
-          anchor = { 1, 1, 0 },
+          anchor = { 2, 1, 0 },
         },
       }
     end)
@@ -720,7 +720,7 @@ describe('ui/ext_popupmenu', function()
       popupmenu = {
         items = month_expected,
         pos = 3,
-        anchor = { 1, 1, 0 },
+        anchor = { 2, 1, 0 },
       },
     }
     feed('<PageUp>')
@@ -734,7 +734,7 @@ describe('ui/ext_popupmenu', function()
       popupmenu = {
         items = month_expected,
         pos = 0,
-        anchor = { 1, 1, 0 },
+        anchor = { 2, 1, 0 },
       },
     }
   end)
@@ -857,7 +857,7 @@ describe('ui/ext_popupmenu', function()
       popupmenu = {
         items = expected,
         pos = 0,
-        anchor = { 1, 1, 0 },
+        anchor = { 2, 1, 0 },
       },
     }
 
@@ -872,7 +872,7 @@ describe('ui/ext_popupmenu', function()
       popupmenu = {
         items = expected,
         pos = -1,
-        anchor = { 1, 1, 0 },
+        anchor = { 2, 1, 0 },
       },
     }
 
@@ -1230,7 +1230,7 @@ describe('builtin popupmenu', function()
           {n:hh             }{s: }|
         ]],
           float_pos = {
-            [5] = { -1, 'NW', 2, 2, 0, false, 100, 1, 11, 0 },
+            [5] = { -1, 'NW', 2, 2, 0, false, 100, 3, 11, 0 },
           },
         }
       else
@@ -1288,7 +1288,7 @@ describe('builtin popupmenu', function()
           {n:hh             }{s: }|
         ]],
           float_pos = {
-            [5] = { -1, 'NW', 2, 2, 0, false, 100, 1, 2, 0 },
+            [5] = { -1, 'NW', 2, 2, 0, false, 100, 3, 2, 0 },
           },
         }
       else
@@ -1364,7 +1364,7 @@ describe('builtin popupmenu', function()
           {n:mm             }{s: }|
         ]],
           float_pos = {
-            [5] = { -1, 'SW', 2, 12, 0, false, 100, 1, 4, 0 },
+            [5] = { -1, 'SW', 2, 12, 0, false, 100, 3, 4, 0 },
           },
         }
       else
@@ -1440,7 +1440,7 @@ describe('builtin popupmenu', function()
           {n:ii             }{s: }|
         ]],
           float_pos = {
-            [5] = { -1, 'SW', 2, 8, 0, false, 100, 1, 8, 0 },
+            [5] = { -1, 'SW', 2, 8, 0, false, 100, 3, 8, 0 },
           },
         }
       else
@@ -1515,7 +1515,7 @@ describe('builtin popupmenu', function()
           {n:hh             }{s: }|
         ]],
           float_pos = {
-            [5] = { -1, 'SW', 2, 8, 0, false, 100, 1, 0, 0 },
+            [5] = { -1, 'SW', 2, 8, 0, false, 100, 3, 0, 0 },
           },
         }
       else
@@ -1600,7 +1600,7 @@ describe('builtin popupmenu', function()
               {n:ab6            }{s: }|
             ]],
             float_pos = {
-              [5] = { -1, 'SW', 2, 6, 0, false, 100, 1, 9, 0 },
+              [5] = { -1, 'SW', 2, 6, 0, false, 100, 3, 9, 0 },
             },
           })
         else
@@ -1678,7 +1678,7 @@ describe('builtin popupmenu', function()
               {n:ab5            }{s: }|
             ]],
             float_pos = {
-              [5] = { -1, 'SW', 2, 5, 0, false, 100, 1, 9, 0 },
+              [5] = { -1, 'SW', 2, 5, 0, false, 100, 3, 9, 0 },
             },
           })
         else
@@ -1737,7 +1737,7 @@ describe('builtin popupmenu', function()
             {n:three          }|
           ]],
           float_pos = {
-            [4] = { -1, 'NW', 2, 1, 0, false, 100, 1, 1, 0 },
+            [4] = { -1, 'NW', 2, 1, 0, false, 100, 2, 1, 0 },
           },
         })
       else
@@ -1774,7 +1774,7 @@ describe('builtin popupmenu', function()
             {1:~                               }|*2
           ]],
           float_pos = {
-            [4] = { -1, 'NW', 2, 1, 0, false, 100, 1, 5, 0 },
+            [4] = { -1, 'NW', 2, 1, 0, false, 100, 3, 5, 0 },
           },
         })
       else
@@ -1832,7 +1832,7 @@ describe('builtin popupmenu', function()
             {n:aa7bb          }{s: }|
           ]],
           float_pos = {
-            [4] = { -1, 'NW', 2, 1, 0, false, 100, 1, 1, 0 },
+            [4] = { -1, 'NW', 2, 1, 0, false, 100, 2, 1, 0 },
           },
         })
       else
@@ -1910,8 +1910,8 @@ describe('builtin popupmenu', function()
             {n:looooooooooooooong }|
           ]],
             float_pos = {
-              [5] = { -1, 'NW', 2, 1, 0, false, 100, 2, 1, 0 },
-              [4] = { 1001, 'NW', 1, 1, 19, false, 50, 1, 1, 19 },
+              [5] = { -1, 'NW', 2, 1, 0, false, 100, 3, 1, 0 },
+              [4] = { 1001, 'NW', 1, 1, 19, false, 50, 2, 1, 19 },
             },
             win_viewport = {
               [2] = {
@@ -1968,8 +1968,8 @@ describe('builtin popupmenu', function()
               {s:one            }|
             ]],
             float_pos = {
-              [5] = { -1, 'NW', 2, 1, 0, false, 100, 2, 1, 0 },
-              [4] = { 1001, 'NW', 1, 1, 15, false, 50, 1, 1, 15 },
+              [5] = { -1, 'NW', 2, 1, 0, false, 100, 3, 1, 0 },
+              [4] = { 1001, 'NW', 1, 1, 15, false, 50, 2, 1, 15 },
             },
             win_viewport = {
               [2] = {
@@ -2037,7 +2037,7 @@ describe('builtin popupmenu', function()
               {n:one            }|
             ]],
             float_pos = {
-              [5] = { -1, 'NW', 2, 1, 0, false, 100, 1, 1, 0 },
+              [5] = { -1, 'NW', 2, 1, 0, false, 100, 2, 1, 0 },
             },
             win_viewport = {
               [2] = {
@@ -2093,8 +2093,8 @@ describe('builtin popupmenu', function()
             {n:     }|
           ]],
             float_pos = {
-              [5] = { -1, 'NW', 2, 1, 0, false, 100, 2, 1, 0 },
-              [7] = { 1003, 'NW', 1, 1, 19, false, 50, 1, 1, 19 },
+              [5] = { -1, 'NW', 2, 1, 0, false, 100, 3, 1, 0 },
+              [7] = { 1003, 'NW', 1, 1, 19, false, 50, 2, 1, 19 },
             },
             win_viewport = {
               [2] = {
@@ -2154,8 +2154,8 @@ describe('builtin popupmenu', function()
             {n:     }|
           ]],
             float_pos = {
-              [8] = { 1004, 'NW', 1, 1, 14, false, 50, 1, 1, 14 },
-              [5] = { -1, 'NW', 2, 1, 19, false, 100, 2, 1, 19 },
+              [8] = { 1004, 'NW', 1, 1, 14, false, 50, 2, 1, 14 },
+              [5] = { -1, 'NW', 2, 1, 19, false, 100, 3, 1, 19 },
             },
             win_viewport = {
               [2] = {
@@ -2219,8 +2219,8 @@ describe('builtin popupmenu', function()
               {n:               }|
             ]],
             float_pos = {
-              [5] = { -1, 'NW', 2, 1, 0, false, 100, 2, 1, 0 },
-              [9] = { 1005, 'NW', 1, 1, 19, false, 50, 1, 1, 19 },
+              [5] = { -1, 'NW', 2, 1, 0, false, 100, 3, 1, 0 },
+              [9] = { 1005, 'NW', 1, 1, 19, false, 50, 2, 1, 19 },
             },
             win_viewport = {
               [2] = {
@@ -2334,7 +2334,7 @@ describe('builtin popupmenu', function()
           {n: aac            }|
         ]],
           float_pos = {
-            [5] = { -1, 'NW', 4, 2, 3, false, 100, 1, 2, 3 },
+            [5] = { -1, 'NW', 4, 2, 3, false, 100, 3, 2, 3 },
           },
         }
       else
@@ -2376,7 +2376,7 @@ describe('builtin popupmenu', function()
           {n: aac            }|
         ]],
           float_pos = {
-            [5] = { -1, 'NW', 2, 3, 1, false, 100, 1, 3, 13 },
+            [5] = { -1, 'NW', 2, 3, 1, false, 100, 3, 3, 13 },
           },
         }
       else
@@ -2420,7 +2420,7 @@ describe('builtin popupmenu', function()
           {n: aaabcdef}|
         ]],
           float_pos = {
-            [5] = { -1, 'NW', 2, 3, 11, false, 100, 1, 3, 23 },
+            [5] = { -1, 'NW', 2, 3, 11, false, 100, 3, 3, 23 },
           },
         }
       else
@@ -2465,7 +2465,7 @@ describe('builtin popupmenu', function()
           {n: aac            }{s: }|
         ]],
           float_pos = {
-            [5] = { -1, 'NW', 2, 4, -1, false, 100, 1, 4, 11 },
+            [5] = { -1, 'NW', 2, 4, -1, false, 100, 3, 4, 11 },
           },
         }
       else
@@ -2586,7 +2586,7 @@ describe('builtin popupmenu', function()
             {s: Est            }{c: }|
           ]],
           float_pos = {
-            [5] = { -1, 'NW', 4, 1, 3, false, 100, 1, 1, 3 },
+            [5] = { -1, 'NW', 4, 1, 3, false, 100, 3, 1, 3 },
           },
         })
       else
@@ -2652,7 +2652,7 @@ describe('builtin popupmenu', function()
             {s: Est            }{c: }|
           ]],
           float_pos = {
-            [5] = { -1, 'NW', 4, 1, 3, false, 100, 1, 1, 3 },
+            [5] = { -1, 'NW', 4, 1, 3, false, 100, 3, 1, 3 },
           },
         })
       else
@@ -2712,7 +2712,7 @@ describe('builtin popupmenu', function()
             {s: est            }|
           ]],
           float_pos = {
-            [5] = { -1, 'NW', 4, 1, 3, false, 100, 1, 1, 3 },
+            [5] = { -1, 'NW', 4, 1, 3, false, 100, 3, 1, 3 },
           },
         })
       else
@@ -2776,7 +2776,7 @@ describe('builtin popupmenu', function()
             {s: est            }|
           ]],
           float_pos = {
-            [5] = { -1, 'NW', 4, 1, 3, false, 100, 1, 1, 3 },
+            [5] = { -1, 'NW', 4, 1, 3, false, 100, 3, 1, 3 },
           },
         })
       else
@@ -2828,7 +2828,7 @@ describe('builtin popupmenu', function()
             {s: est            }|
           ]],
           float_pos = {
-            [5] = { -1, 'NW', 4, 1, 3, false, 100, 1, 1, 3 },
+            [5] = { -1, 'NW', 4, 1, 3, false, 100, 3, 1, 3 },
           },
         })
       else
@@ -2884,7 +2884,7 @@ describe('builtin popupmenu', function()
             {s: est            }|
           ]],
           float_pos = {
-            [5] = { -1, 'NW', 4, 1, 3, false, 100, 1, 1, 3 },
+            [5] = { -1, 'NW', 4, 1, 3, false, 100, 3, 1, 3 },
           },
         })
       else
@@ -2944,7 +2944,7 @@ describe('builtin popupmenu', function()
             {s: est            }|
           ]],
           float_pos = {
-            [5] = { -1, 'NW', 4, 1, 3, false, 100, 1, 1, 3 },
+            [5] = { -1, 'NW', 4, 1, 3, false, 100, 3, 1, 3 },
           },
         })
       else
@@ -3004,7 +3004,7 @@ describe('builtin popupmenu', function()
             {n: est            }|
           ]],
           float_pos = {
-            [5] = { -1, 'NW', 4, 1, 3, false, 100, 1, 1, 3 },
+            [5] = { -1, 'NW', 4, 1, 3, false, 100, 3, 1, 3 },
           },
         })
       else
@@ -3068,7 +3068,7 @@ describe('builtin popupmenu', function()
             {n: est            }|
           ]],
           float_pos = {
-            [5] = { -1, 'NW', 4, 1, 3, false, 100, 1, 1, 3 },
+            [5] = { -1, 'NW', 4, 1, 3, false, 100, 3, 1, 3 },
           },
         })
       else
@@ -3127,7 +3127,7 @@ describe('builtin popupmenu', function()
             {n: eö                 }|
           ]],
           float_pos = {
-            [5] = { -1, 'NW', 4, 1, 2, false, 100, 1, 1, 2 },
+            [5] = { -1, 'NW', 4, 1, 2, false, 100, 3, 1, 2 },
           },
         })
       else
@@ -3186,7 +3186,7 @@ describe('builtin popupmenu', function()
             {n: eö             }|
           ]],
           float_pos = {
-            [5] = { -1, 'NW', 4, 1, 2, false, 100, 1, 1, 2 },
+            [5] = { -1, 'NW', 4, 1, 2, false, 100, 3, 1, 2 },
           },
         })
       else
@@ -3245,7 +3245,7 @@ describe('builtin popupmenu', function()
             {n: eö             }|
           ]],
           float_pos = {
-            [5] = { -1, 'NW', 4, 1, 2, false, 100, 1, 1, 2 },
+            [5] = { -1, 'NW', 4, 1, 2, false, 100, 3, 1, 2 },
           },
         })
       else
@@ -3297,7 +3297,7 @@ describe('builtin popupmenu', function()
             {n: bar            }|
           ]],
           float_pos = {
-            [5] = { -1, 'NW', 4, 1, 4, false, 100, 1, 1, 4 },
+            [5] = { -1, 'NW', 4, 1, 4, false, 100, 3, 1, 4 },
           },
         })
       else
@@ -3389,7 +3389,7 @@ describe('builtin popupmenu', function()
             {n: thing }|
           ]],
           float_pos = {
-            [4] = { -1, 'NW', 2, 1, 25, false, 100, 1, 1, 25 },
+            [4] = { -1, 'NW', 2, 1, 25, false, 100, 2, 1, 25 },
           },
         })
       else
@@ -3424,7 +3424,7 @@ describe('builtin popupmenu', function()
             {s:thing          }|
           ]],
           float_pos = {
-            [4] = { -1, 'NW', 2, 2, 0, false, 100, 1, 2, 0 },
+            [4] = { -1, 'NW', 2, 2, 0, false, 100, 2, 2, 0 },
           },
         })
       else
@@ -3460,7 +3460,7 @@ describe('builtin popupmenu', function()
             {n: thing }|
           ]],
           float_pos = {
-            [4] = { -1, 'NW', 2, 1, 25, false, 100, 1, 1, 25 },
+            [4] = { -1, 'NW', 2, 1, 25, false, 100, 2, 1, 25 },
           },
         })
       else
@@ -3495,7 +3495,7 @@ describe('builtin popupmenu', function()
             {n:thing          }|
           ]],
           float_pos = {
-            [4] = { -1, 'NW', 2, 2, 0, false, 100, 1, 2, 0 },
+            [4] = { -1, 'NW', 2, 2, 0, false, 100, 2, 2, 0 },
           },
         })
       else
@@ -3530,7 +3530,7 @@ describe('builtin popupmenu', function()
             {n: thing          }|
           ]],
           float_pos = {
-            [4] = { -1, 'NW', 2, 1, 27, false, 100, 1, 1, 27 },
+            [4] = { -1, 'NW', 2, 1, 27, false, 100, 2, 1, 27 },
           },
         })
       else
@@ -3565,7 +3565,7 @@ describe('builtin popupmenu', function()
             {n: thing          }|
           ]],
           float_pos = {
-            [4] = { -1, 'NW', 2, 2, 3, false, 100, 1, 2, 3 },
+            [4] = { -1, 'NW', 2, 2, 3, false, 100, 2, 2, 3 },
           },
         })
       else
@@ -3602,7 +3602,7 @@ describe('builtin popupmenu', function()
             {n: thing          }|
           ]],
           float_pos = {
-            [4] = { -1, 'NW', 2, 2, 3, false, 100, 1, 2, 3 },
+            [4] = { -1, 'NW', 2, 2, 3, false, 100, 2, 2, 3 },
           },
         })
       else
@@ -3645,7 +3645,7 @@ describe('builtin popupmenu', function()
             {n: thing          }|
           ]],
           float_pos = {
-            [4] = { -1, 'NW', 2, 2, 3, false, 100, 1, 2, 3 },
+            [4] = { -1, 'NW', 2, 2, 3, false, 100, 2, 2, 3 },
           },
         })
       else
@@ -3676,7 +3676,7 @@ describe('builtin popupmenu', function()
             {n: thing   }|
           ]],
           float_pos = {
-            [4] = { -1, 'NW', 2, 2, 10, false, 100, 1, 2, 10 },
+            [4] = { -1, 'NW', 2, 2, 10, false, 100, 2, 2, 10 },
           },
         })
       else
@@ -3717,7 +3717,7 @@ describe('builtin popupmenu', function()
             {n: thing }|
           ]],
           float_pos = {
-            [4] = { -1, 'NW', 2, 1, 25, false, 100, 1, 1, 25 },
+            [4] = { -1, 'NW', 2, 1, 25, false, 100, 2, 1, 25 },
           },
         })
       else
@@ -3753,7 +3753,7 @@ describe('builtin popupmenu', function()
             {n: thing       }|
           ]],
           float_pos = {
-            [4] = { -1, 'NW', 2, 3, 3, false, 100, 1, 3, 3 },
+            [4] = { -1, 'NW', 2, 3, 3, false, 100, 2, 3, 3 },
           },
         })
       else
@@ -3815,7 +3815,7 @@ describe('builtin popupmenu', function()
             {n:          gniht }|
           ]],
           float_pos = {
-            [4] = { -1, 'NW', 2, 1, 2, false, 100, 1, 1, 2 },
+            [4] = { -1, 'NW', 2, 1, 2, false, 100, 2, 1, 2 },
           },
         })
       else
@@ -3849,7 +3849,7 @@ describe('builtin popupmenu', function()
             {n:          gniht }|
           ]],
           float_pos = {
-            [4] = { -1, 'NW', 2, 1, 2, false, 100, 1, 1, 2 },
+            [4] = { -1, 'NW', 2, 1, 2, false, 100, 2, 1, 2 },
           },
         })
       else
@@ -3933,7 +3933,7 @@ describe('builtin popupmenu', function()
             {n: unplace        }|
           ]],
           float_pos = {
-            [4] = { -1, 'SW', 1, 19, 5, false, 250, 2, 13, 5 },
+            [4] = { -1, 'SW', 1, 19, 5, false, 250, 3, 13, 5 },
           },
         })
       else
@@ -3981,7 +3981,7 @@ describe('builtin popupmenu', function()
           {s: }{n:         eciohc }|
         ]],
           float_pos = {
-            [5] = { -1, 'NW', 4, 1, -11, false, 100, 1, 1, 9 },
+            [5] = { -1, 'NW', 4, 1, -11, false, 100, 3, 1, 9 },
           },
         }
       else
@@ -4018,7 +4018,7 @@ describe('builtin popupmenu', function()
           {s: }{n:         eciohc}|
         ]],
           float_pos = {
-            [5] = { -1, 'NW', 4, 2, 4, false, 100, 1, 2, 24 },
+            [5] = { -1, 'NW', 4, 2, 4, false, 100, 3, 2, 24 },
           },
         }
       else
@@ -4085,7 +4085,7 @@ describe('builtin popupmenu', function()
           {n:jump           }{s: }|
         ]],
           float_pos = {
-            [5] = { -1, 'SW', 1, 5, 0, false, 250, 2, 3, 0 },
+            [5] = { -1, 'SW', 1, 5, 0, false, 250, 4, 3, 0 },
           },
         }
       else
@@ -4818,7 +4818,7 @@ describe('builtin popupmenu', function()
             {n: unplace        }|
           ]],
           float_pos = {
-            [4] = { -1, 'SW', 1, 9, 5, false, 250, 2, 3, 5 },
+            [4] = { -1, 'SW', 1, 9, 5, false, 250, 3, 3, 5 },
           },
         })
       else
@@ -5157,7 +5157,7 @@ describe('builtin popupmenu', function()
           {n: choice}{s: }|
         ]],
           float_pos = {
-            [4] = { -1, 'NW', 2, 1, 24, false, 100, 1, 1, 24 },
+            [4] = { -1, 'NW', 2, 1, 24, false, 100, 2, 1, 24 },
           },
         }
       else
@@ -5196,7 +5196,7 @@ describe('builtin popupmenu', function()
           {n: thing }|
         ]],
           float_pos = {
-            [4] = { -1, 'NW', 2, 1, 25, false, 100, 1, 1, 25 },
+            [4] = { -1, 'NW', 2, 1, 25, false, 100, 2, 1, 25 },
           },
         }
       else
@@ -5247,7 +5247,7 @@ describe('builtin popupmenu', function()
           ## grid 4
             {n: 哦哦哦哦哦哦哦哦哦>}|
         ]],
-          float_pos = { [4] = { -1, 'NW', 2, 1, 12, false, 100, 1, 1, 12 } },
+          float_pos = { [4] = { -1, 'NW', 2, 1, 12, false, 100, 2, 1, 12 } },
         })
       else
         screen:expect([[
@@ -5284,7 +5284,7 @@ describe('builtin popupmenu', function()
             {n: 哦哦哦哦哦哦哦哦哦>}{c: }|*2
             {n: 哦哦哦哦哦哦哦哦哦>}{s: }|*2
         ]],
-          float_pos = { [4] = { -1, 'NW', 2, 1, 11, false, 100, 1, 1, 11 } },
+          float_pos = { [4] = { -1, 'NW', 2, 1, 11, false, 100, 2, 1, 11 } },
         })
       else
         screen:expect([[
@@ -5297,7 +5297,7 @@ describe('builtin popupmenu', function()
       end
     end)
 
-    it('testme supports mousemodel=popup', function()
+    it('supports mousemodel=popup', function()
       screen:try_resize(32, 6)
       exec([[
         call setline(1, 'popup menu test')
@@ -5332,7 +5332,7 @@ describe('builtin popupmenu', function()
           {n: bar }|
           {n: baz }|
         ]],
-          float_pos = { [4] = { -1, 'NW', 2, 1, 3, false, 250, 2, 1, 3 } },
+          float_pos = { [4] = { -1, 'NW', 2, 1, 3, false, 250, 3, 1, 3 } },
         })
       else
         screen:expect([[
@@ -5361,7 +5361,7 @@ describe('builtin popupmenu', function()
           {n: bar }|
           {n: baz }|
         ]],
-          float_pos = { [4] = { -1, 'NW', 2, 1, 3, false, 250, 2, 1, 3 } },
+          float_pos = { [4] = { -1, 'NW', 2, 1, 3, false, 250, 3, 1, 3 } },
         })
       else
         screen:expect([[
@@ -5390,7 +5390,7 @@ describe('builtin popupmenu', function()
           {s: bar }|
           {n: baz }|
         ]],
-          float_pos = { [4] = { -1, 'NW', 2, 1, 3, false, 250, 2, 1, 3 } },
+          float_pos = { [4] = { -1, 'NW', 2, 1, 3, false, 250, 3, 1, 3 } },
         })
       else
         screen:expect([[
@@ -5446,7 +5446,7 @@ describe('builtin popupmenu', function()
           {n: bar }|
           {n: baz }|
         ]],
-          float_pos = { [4] = { -1, 'NW', 2, 3, 19, false, 250, 2, 3, 19 } },
+          float_pos = { [4] = { -1, 'NW', 2, 3, 19, false, 250, 3, 3, 19 } },
         })
       else
         screen:expect([[
@@ -5478,7 +5478,7 @@ describe('builtin popupmenu', function()
           {n: bar }|
           {n: baz }|
         ]],
-          float_pos = { [4] = { -1, 'NW', 2, 1, 17, false, 250, 2, 1, 17 } },
+          float_pos = { [4] = { -1, 'NW', 2, 1, 17, false, 250, 3, 1, 17 } },
         }
       else
         screen:expect([[
@@ -5511,7 +5511,7 @@ describe('builtin popupmenu', function()
           {n: bar }|
           {n: baz }|
         ]],
-          float_pos = { [4] = { -1, 'NW', 2, 3, 19, false, 250, 2, 3, 19 } },
+          float_pos = { [4] = { -1, 'NW', 2, 3, 19, false, 250, 3, 3, 19 } },
         })
       else
         screen:expect([[
@@ -5570,7 +5570,7 @@ describe('builtin popupmenu', function()
           {n: bar }|
           {n: baz }|
         ]],
-          float_pos = { [4] = { -1, 'NW', 2, 1, 3, false, 250, 2, 1, 3 } },
+          float_pos = { [4] = { -1, 'NW', 2, 1, 3, false, 250, 3, 1, 3 } },
         })
       else
         screen:expect([[
@@ -5603,7 +5603,7 @@ describe('builtin popupmenu', function()
           {n: bar }|
           {s: baz }|
         ]],
-          float_pos = { [4] = { -1, 'NW', 2, 1, 3, false, 250, 2, 1, 3 } },
+          float_pos = { [4] = { -1, 'NW', 2, 1, 3, false, 250, 3, 1, 3 } },
         })
       else
         screen:expect([[
@@ -5664,7 +5664,7 @@ describe('builtin popupmenu', function()
           {n: bar }|
           {n: baz }|
         ]],
-          float_pos = { [4] = { -1, 'NW', 2, 1, 3, false, 250, 2, 1, 3 } },
+          float_pos = { [4] = { -1, 'NW', 2, 1, 3, false, 250, 3, 1, 3 } },
         })
       else
         screen:expect([[
@@ -5698,7 +5698,7 @@ describe('builtin popupmenu', function()
           {n: bar }|
           {n: baz }|
         ]],
-          float_pos = { [4] = { -1, 'NW', 2, 1, 3, false, 250, 2, 1, 3 } },
+          float_pos = { [4] = { -1, 'NW', 2, 1, 3, false, 250, 3, 1, 3 } },
         })
       else
         screen:expect([[
@@ -5732,7 +5732,7 @@ describe('builtin popupmenu', function()
           {n: bar }|
           {s: baz }|
         ]],
-          float_pos = { [4] = { -1, 'NW', 2, 1, 3, false, 250, 2, 1, 3 } },
+          float_pos = { [4] = { -1, 'NW', 2, 1, 3, false, 250, 3, 1, 3 } },
         })
       else
         screen:expect([[
@@ -5766,7 +5766,7 @@ describe('builtin popupmenu', function()
           {s: bar }|
           {n: baz }|
         ]],
-          float_pos = { [4] = { -1, 'NW', 2, 1, 3, false, 250, 2, 1, 3 } },
+          float_pos = { [4] = { -1, 'NW', 2, 1, 3, false, 250, 3, 1, 3 } },
         })
       else
         screen:expect([[
@@ -5834,7 +5834,7 @@ describe('builtin popupmenu', function()
           ^popup menu test                 |
           {1:~                               }|
         ]],
-          float_pos = { [4] = { -1, 'SW', 5, 1, 19, false, 250, 2, 1, 19 } },
+          float_pos = { [4] = { -1, 'SW', 5, 1, 19, false, 250, 4, 1, 19 } },
         })
       else
         screen:expect([[
@@ -5911,7 +5911,7 @@ describe('builtin popupmenu', function()
           ^popup menu test |
           {1:~               }|
         ]],
-          float_pos = { [4] = { -1, 'SW', 6, 1, 12, false, 250, 2, 1, 28 } },
+          float_pos = { [4] = { -1, 'SW', 6, 1, 12, false, 250, 5, 1, 28 } },
         })
       else
         screen:expect([[
@@ -5991,7 +5991,7 @@ describe('builtin popupmenu', function()
           {2:WINBAR          }|
           ^popup menu test |
         ]],
-          float_pos = { [4] = { -1, 'SW', 6, 1, 12, false, 250, 2, 1, 28 } },
+          float_pos = { [4] = { -1, 'SW', 6, 1, 12, false, 250, 5, 1, 28 } },
         })
       else
         screen:expect([[
@@ -6070,7 +6070,7 @@ describe('builtin popupmenu', function()
           {2:WINBAR          }|
           ^popup menu test |
         ]],
-          float_pos = { [4] = { -1, 'NW', 2, 1, 19, false, 250, 2, 1, 19 } },
+          float_pos = { [4] = { -1, 'NW', 2, 1, 19, false, 250, 5, 1, 19 } },
         }
       else
         no_sel_screen = {
@@ -6172,7 +6172,7 @@ describe('builtin popupmenu', function()
           {2:WINBAR          }|
           popup menu test |
         ]],
-          float_pos = { [4] = { -1, 'NW', 2, 1, 17, false, 250, 2, 1, 17 } },
+          float_pos = { [4] = { -1, 'NW', 2, 1, 17, false, 250, 5, 1, 17 } },
         }
       else
         no_sel_screen = {
@@ -6414,7 +6414,7 @@ describe('builtin popupmenu', function()
             {n: Select All      }|
           ]],
           float_pos = {
-            [4] = { -1, 'NW', 2, 1, 33, false, 250, 2, 1, 33 },
+            [4] = { -1, 'NW', 2, 1, 33, false, 250, 3, 1, 33 },
           },
         })
       else
@@ -6466,7 +6466,7 @@ describe('builtin popupmenu', function()
             {n:      llA tceleS }|
           ]],
           float_pos = {
-            [4] = { -1, 'NW', 2, 1, 0, false, 250, 2, 1, 0 },
+            [4] = { -1, 'NW', 2, 1, 0, false, 250, 3, 1, 0 },
           },
         })
       else
