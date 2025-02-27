@@ -71,6 +71,8 @@ void ui_comp_free_all_mem(void)
   kv_destroy(layers);
   xfree(linebuf);
   xfree(attrbuf);
+  XFREE_CLEAR(bg_linebuf);
+  XFREE_CLEAR(bg_attrbuf);
 }
 #endif
 
@@ -94,6 +96,8 @@ void ui_comp_detach(RemoteUI *ui)
   if (composed_uis == 0) {
     XFREE_CLEAR(linebuf);
     XFREE_CLEAR(attrbuf);
+    XFREE_CLEAR(bg_linebuf);
+    XFREE_CLEAR(bg_attrbuf);
     bufsize = 0;
   }
   ui->composed = false;
@@ -101,7 +105,7 @@ void ui_comp_detach(RemoteUI *ui)
 
 bool ui_comp_should_draw(void)
 {
-  return composed_uis != 0 && valid_screen;
+  return composed_uis != 0 && valid_screen && linebuf;
 }
 
 /// Raises or lowers the layer, syncing comp_index with zindex.
