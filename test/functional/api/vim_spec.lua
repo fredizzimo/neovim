@@ -5297,82 +5297,43 @@ describe('API', function()
     api.nvim_set_option_value('showtabline', 2, {})
     api.nvim_set_option_value('tabline', 'tabline', {})
     api.nvim__redraw({ tabline = true })
-    -- NOTE: When using multigrid the cursor changes because it moves with the window
-    if t.is_forced_multigrid() then
-      screen:expect({
-        grid = [[
-          {2:tabline                                                     }|
-          {5:^winbar                        }│{8:statuscolumn}foobar           |
-          foobaz                        │{1:~                            }|
-          {3:statusline3                    }{2:statusline3                  }|
-          :echo getchar()                                             |
-        ]],
-      })
-    else
-      screen:expect({
-        grid = [[
-          {2:^tabline                                                     }|
-          {5:winbar                        }│{8:statuscolumn}foobar           |
-          foobaz                        │{1:~                            }|
-          {3:statusline3                    }{2:statusline3                  }|
-          :echo getchar()                                             |
-        ]],
-      })
-    end
+    screen:expect({
+      grid = [[
+        {2:tabline                                                     }|
+        {5:^winbar                        }│{8:statuscolumn}foobar           |
+        foobaz                        │{1:~                            }|
+        {3:statusline3                    }{2:statusline3                  }|
+        :echo getchar()                                             |
+      ]],
+    })
     -- Can update multiple status widgets
     api.nvim_set_option_value('tabline', 'tabline2', {})
     api.nvim_set_option_value('statusline', 'statusline4', {})
     api.nvim__redraw({ statusline = true, tabline = true })
-    -- NOTE: When using multigrid the cursor changes because it moves with the window
-    if t.is_forced_multigrid() then
-      screen:expect({
-        grid = [[
-          {2:tabline2                                                    }|
-          {5:^winbar                        }│{8:statuscolumn}foobar           |
-          foobaz                        │{1:~                            }|
-          {3:statusline4                    }{2:statusline4                  }|
-          :echo getchar()                                             |
-        ]],
-      })
-    else
-      screen:expect({
-        grid = [[
-          {2:^tabline2                                                    }|
-          {5:winbar                        }│{8:statuscolumn}foobar           |
-          foobaz                        │{1:~                            }|
-          {3:statusline4                    }{2:statusline4                  }|
-          :echo getchar()                                             |
-        ]],
-      })
-    end
+    screen:expect({
+      grid = [[
+        {2:tabline2                                                    }|
+        {5:^winbar                        }│{8:statuscolumn}foobar           |
+        foobaz                        │{1:~                            }|
+        {3:statusline4                    }{2:statusline4                  }|
+        :echo getchar()                                             |
+      ]],
+    })
     -- Can update all status widgets
     api.nvim_set_option_value('tabline', 'tabline3', {})
     api.nvim_set_option_value('statusline', 'statusline5', {})
     api.nvim_set_option_value('statuscolumn', 'statuscolumn2', {})
     api.nvim_set_option_value('winbar', 'winbar2', {})
     api.nvim__redraw({ statuscolumn = true, statusline = true, tabline = true, winbar = true })
-    -- NOTE: When using multigrid the cursor changes because it moves with the window
-    if t.is_forced_multigrid() then
-      screen:expect({
-        grid = [[
-          {2:tabline3                                                    }|
-          {5:^winbar2                       }│{5:winbar2                      }|
-          {8:statuscolumn2}foobaz           │{8:statuscolumn}foobar           |
-          {3:statusline5                    }{2:statusline5                  }|
-          :echo getchar()                                             |
-        ]],
-      })
-    else
-      screen:expect({
-        grid = [[
-          {2:^tabline3                                                    }|
-          {5:winbar2                       }│{5:winbar2                      }|
-          {8:statuscolumn2}foobaz           │{8:statuscolumn}foobar           |
-          {3:statusline5                    }{2:statusline5                  }|
-          :echo getchar()                                             |
-        ]],
-      })
-    end
+    screen:expect({
+      grid = [[
+        {2:tabline3                                                    }|
+        {5:^winbar2                       }│{5:winbar2                      }|
+        {8:statuscolumn2}foobaz           │{8:statuscolumn}foobar           |
+        {3:statusline5                    }{2:statusline5                  }|
+        :echo getchar()                                             |
+      ]],
+    })
 
     -- Can update status widget for a specific window
     feed('<CR><CR>')
