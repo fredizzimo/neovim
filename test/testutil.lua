@@ -880,6 +880,17 @@ function M.skip_forced_mulitgrid(reason, cond, stackdepth)
   end
 end
 
+function M.always_skip(reason, cond, stackdepth)
+  if stackdepth == nil then
+    stackdepth = 2
+  end
+  if cond == nil or cond then
+    --- @type fun(reason: string)
+    local pending = getfenv(stackdepth).pending
+    pending('skipped forced multigrid test: ' .. reason)
+  end
+end
+
 --- @param linegrid? boolean
 function M.skip_forced_multigrid_non_linegrid(linegrid)
   local reason = 'Linegrid has to be enabled with multigrid'
@@ -895,17 +906,13 @@ end
 function M.skip_forced_multigrid_inccomand_split(cond)
   local reason = 'FIXME: Inccommand split does not work with multigrid #24802'
   -- M.skip_forced_mulitgrid(reason, cond, 3)
-  local stackdepth = 2
-  if cond == nil or cond then
-    --- @type fun(reason: string)
-    local pending = getfenv(stackdepth).pending
-    pending('skipped forced multigrid test: ' .. reason)
-  end
+  M.always_skip(reason, cond, 3)
 end
 
 function M.skip_forced_multigrid_command_c_c()
   local reason = 'FIXME: C-c closes the commandline window #31811'
-  M.skip_forced_mulitgrid(reason, nil, 3)
+  -- M.skip_forced_mulitgrid(reason, nil, 3)
+  M.always_skip(reason, nil, 3)
 end
 
 function M.skip_forced_multigrid_intro()
