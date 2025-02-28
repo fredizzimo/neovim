@@ -635,57 +635,29 @@ local function screen_tests(linegrid)
     it('messages from the same Ex command as resize are visible #22225', function()
       t.skip_forced_multigrid_non_linegrid(linegrid)
       feed(':set columns=20 | call<CR>')
-      if t.is_forced_multigrid() then
-        -- The ~ are not removed when using multigrid
-        screen:expect([[
-                              |
-          {0:~                   }|*8
-          {1:                    }|
-          {8:E471: Argument requi}|
-          {8:red}                 |
-          {7:Press ENTER or type }|
-          {7:command to continue}^ |
-        ]])
-      else
-        screen:expect([[
-                              |*9
-          {1:                    }|
-          {8:E471: Argument requi}|
-          {8:red}                 |
-          {7:Press ENTER or type }|
-          {7:command to continue}^ |
-        ]])
-      end
+      screen:expect([[
+                            |
+        {0:~                   }|*8
+        {1:                    }|
+        {8:E471: Argument requi}|
+        {8:red}                 |
+        {7:Press ENTER or type }|
+        {7:command to continue}^ |
+      ]])
       feed(':set columns=0<CR>')
-      if t.is_forced_multigrid() then
-        -- The ~ are not removed when using multigrid
-        screen:expect([[
-                              |
-          {0:~                   }|*4
-          {1:                    }|
-          {8:E471: Argument requi}|
-          {8:red}                 |
-          {7:Press ENTER or type }|
-          {8:E594: Need at least }|
-          {8:12 columns: columns=}|
-          {8:0}                   |
-          {7:Press ENTER or type }|
-          {7:command to continue}^ |
-        ]])
-      else
-        screen:expect([[
-                              |*5
-          {1:                    }|
-          {8:E471: Argument requi}|
-          {8:red}                 |
-          {7:Press ENTER or type }|
-          {8:E594: Need at least }|
-          {8:12 columns: columns=}|
-          {8:0}                   |
-          {7:Press ENTER or type }|
-          {7:command to continue}^ |
-        ]])
-      end
+      screen:expect([[
+                            |
+        {0:~                   }|*4
+        {1:                    }|
+        {8:E471: Argument requi}|
+        {8:red}                 |
+        {7:Press ENTER or type }|
+        {8:E594: Need at least }|
+        {8:12 columns: columns=}|
+        {8:0}                   |
+        {7:Press ENTER or type }|
+        {7:command to continue}^ |
+      ]])
 
       feed('<CR>')
       screen:expect([[
