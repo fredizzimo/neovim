@@ -663,6 +663,8 @@ int update_screen(void)
     maketitle();
   }
 
+  redraw_statuslines();
+
   // Clear or redraw the command line.  Done last, because scrolling may
   // mess up the command line.
   if (clear_cmdline || redraw_cmdline || redraw_mode) {
@@ -681,7 +683,6 @@ int update_screen(void)
   if (!ui_has(kUICmdline)) {
     cmdline_was_last_drawn = false;
   }
-  redraw_statuslines();
   return OK;
 }
 
