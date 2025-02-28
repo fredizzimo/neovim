@@ -7454,6 +7454,8 @@ void win_ui_flush(bool validate)
         && wp->w_grid_alloc.chars != NULL) {
       if (tp == curtab) {
         ui_ext_win_position(wp, validate);
+        // This forces the cursor to draw at the correct new location
+        ui_check_cursor_grid(wp->w_grid.target->handle);
       } else {
         ui_call_win_hide(wp->w_grid_alloc.handle);
         wp->w_pos_changed = false;
