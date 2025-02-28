@@ -152,7 +152,8 @@ bool ui_comp_put_grid(ScreenGrid *grid, int row, int col, int height, int width,
   bool moved;
 
   if (grid->comp_index != 0) {
-    moved = row != grid->comp_row || col != grid->comp_col || height != grid->comp_height || width != grid->comp_width;
+    moved = row != grid->comp_row || col != grid->comp_col || height != grid->comp_height
+            || width != grid->comp_width;
     if (ui_comp_should_draw()) {
       // Redraw the area covered by the old position, and is not covered
       // by the new position. Disable the grid so that compose_area() will not
