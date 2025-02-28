@@ -3606,24 +3606,13 @@ describe('builtin popupmenu', function()
           },
         })
       else
-        if screen.forced_multigrid then
-          -- With forced multigrid, as much as possible is rendered
-          screen:expect([[
-            some long   |
-            prefix      |
-            bef{n: word    }|
-            tex{n: ^choice  }|
-            {2:-- INSERT --}|
-          ]])
-        else
-          screen:expect([[
-            some long   |
-            prefix      |
-            bef{n: word  }  |
-            tex{n: }^        |
-            {2:-- INSERT --}|
-          ]])
-        end
+        screen:expect([[
+          some long   |
+          prefix      |
+          bef{n: word    }|
+          tex{n: ^choice  }|
+          {2:-- INSERT --}|
+        ]])
       end
 
       -- can't draw the pum, but check we don't crash
