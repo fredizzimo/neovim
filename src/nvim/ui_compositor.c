@@ -150,31 +150,32 @@ bool ui_comp_put_grid(ScreenGrid *grid, int row, int col, int height, int width,
                       bool on_top)
 {
   bool moved;
-  grid->composition_updated = true;
 
-  grid->comp_height = height;
-  grid->comp_width = width;
   if (grid->comp_index != 0) {
-    moved = (row != grid->comp_row) || (col != grid->comp_col);
+    moved = row != grid->comp_row || col != grid->comp_col || height != grid->comp_height || width != grid->comp_width;
     if (ui_comp_should_draw()) {
       // Redraw the area covered by the old position, and is not covered
       // by the new position. Disable the grid so that compose_area() will not
       // use it.
       grid->comp_disabled = true;
+      // Top
       compose_area(grid->comp_row, row,
-                   grid->comp_col, grid->comp_col + grid->cols);
+                   grid->comp_col, grid->comp_col + grid->comp_width);
+      // Left
       if (grid->comp_col < col) {
-        compose_area(MAX(row, grid->comp_row),
-                     MIN(row + height, grid->comp_row + grid->rows),
+        compose_area(grid->comp_row,
+                     grid->comp_row + grid->comp_height,
                      grid->comp_col, col);
       }
-      if (col + width < grid->comp_col + grid->cols) {
-        compose_area(MAX(row, grid->comp_row),
-                     MIN(row + height, grid->comp_row + grid->rows),
-                     col + width, grid->comp_col + grid->cols);
+      // Right
+      if (col + width < grid->comp_col + grid->comp_width) {
+        compose_area(grid->comp_row,
+                     grid->comp_row + grid->comp_height,
+                     col + width, grid->comp_col + grid->comp_width);
       }
-      compose_area(row + height, grid->comp_row + grid->rows,
-                   grid->comp_col, grid->comp_col + grid->cols);
+      // Bottom
+      compose_area(row + height, grid->comp_row + grid->comp_height,
+                   grid->comp_col, grid->comp_col + grid->comp_width);
       grid->comp_disabled = false;
     }
     grid->comp_row = row;
@@ -211,11 +212,14 @@ bool ui_comp_put_grid(ScreenGrid *grid, int row, int col, int height, int width,
     }
     kv_A(layers, insert_at) = grid;
 
-    grid->comp_row = row;
-    grid->comp_col = col;
     grid->comp_index = insert_at;
     grid->composition_updated = true;
   }
+  grid->comp_row = row;
+  grid->comp_col = col;
+  grid->comp_height = height;
+  grid->comp_width = width;
+  grid->composition_updated = true;
   if (moved && valid && ui_comp_should_draw()) {
     compose_area(grid->comp_row, grid->comp_row + grid->rows,
                  grid->comp_col, grid->comp_col + grid->cols);
