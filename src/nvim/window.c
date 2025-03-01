@@ -852,10 +852,9 @@ void ui_ext_win_position(win_T *wp, bool validate)
     if (resort) {
       ui_comp_layers_adjust(wp->w_grid_alloc.comp_index, raise);
     }
-    bool valid = (wp->w_redr_type == 0 || ui_has(kUIMultigrid));
+    bool valid = wp->w_redr_type == 0;
     if (!valid && !validate) {
       wp->w_pos_changed = true;
-      return;
     }
 
     // TODO(bfredl): ideally, compositor should work like any multigrid UI
@@ -876,8 +875,12 @@ void ui_ext_win_position(win_T *wp, bool validate)
     wp->w_wincol = comp_col;
 
     if (!c.hide) {
-      ui_comp_put_grid(&wp->w_grid_alloc, comp_row, comp_col,
-                       wp->w_height_outer, wp->w_width_outer, valid, false);
+      if (valid || validate) {
+        ui_comp_put_grid(&wp->w_grid_alloc, comp_row, comp_col,
+                         wp->w_height_outer, wp->w_width_outer, valid, false);
+        ui_check_cursor_grid(wp->w_grid_alloc.handle);
+        wp->w_grid_alloc.mouse_enabled = wp->w_config.mouse;
+      }
       if (ui_has(kUIMultigrid)) {
         String anchor = cstr_as_string(float_anchor_str[c.anchor]);
         ui_call_win_float_pos(wp->w_grid_alloc.handle, wp->handle, anchor,
@@ -886,8 +889,6 @@ void ui_ext_win_position(win_T *wp, bool validate)
                               wp->w_winrow,
                               wp->w_wincol);
       }
-      ui_check_cursor_grid(wp->w_grid_alloc.handle);
-      wp->w_grid_alloc.mouse_enabled = wp->w_config.mouse;
       if (!valid) {
         wp->w_grid_alloc.valid = false;
         redraw_later(wp, UPD_NOT_VALID);
