@@ -1276,14 +1276,6 @@ function Screen:_flush_grid(
     self._composed_cursor.col = cursor.col + position.startcol
     self._composed_cursor.grid = 1
   end
-  if self._popupmenu and self._popupmenu.anchor[1] == igrid then
-    self.popupmenu = vim.deepcopy(self._popupmenu)
-    self.popupmenu.anchor = {
-      1,
-      self._popupmenu.anchor[2] + position.startrow,
-      self._popupmenu.anchor[3] + position.startcol,
-    }
-  end
   if igrid > 1 then
     if igrid == self.msg_grid then
       height = self._grids[1].height - self.msg_grid_pos
@@ -1366,7 +1358,6 @@ function Screen:_reset()
 
   -- TODO: share with initialization, so it generalizes?
   self.popupmenu = nil
-  self._popupmenu = nil
   self.cmdline = {}
   self.cmdline_block = {}
   self.wildmenu_items = nil
@@ -1706,16 +1697,14 @@ function Screen:_handle_chdir(path)
 end
 
 function Screen:_handle_popupmenu_show(items, selected, row, col, grid)
-  self._popupmenu = { items = items, pos = selected, anchor = { grid, row, col } }
-  self.popupmenu = self._popupmenu
+  self.popupmenu = { items = items, pos = selected, anchor = { grid, row, col } }
 end
 
 function Screen:_handle_popupmenu_select(selected)
-  self._popupmenu.pos = selected
+  self.popupmenu.pos = selected
 end
 
 function Screen:_handle_popupmenu_hide()
-  self._popupmenu = nil
   self.popupmenu = nil
 end
 
