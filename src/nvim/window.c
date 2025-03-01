@@ -699,6 +699,7 @@ wingotofile:
       break;
 
     case 'e':
+      // Only multigrid support external windows
       if (curwin->w_floating || !ui_has(kUIMultigrid)) {
         beep_flush();
         break;
