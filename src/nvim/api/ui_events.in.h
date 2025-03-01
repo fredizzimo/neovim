@@ -89,7 +89,7 @@ void grid_scroll(Integer grid, Integer top, Integer bot, Integer left, Integer r
                  Integer cols)
   FUNC_API_SINCE(5) FUNC_API_REMOTE_IMPL FUNC_API_COMPOSITOR_IMPL;
 void grid_destroy(Integer grid)
-  FUNC_API_SINCE(6) FUNC_API_REMOTE_ONLY;
+  FUNC_API_SINCE(6) FUNC_API_MULTIGRID_IMPL;
 
 // For performance and simplicity, we use the dense screen representation
 // in internal code, such as compositor and TUI. The remote_ui module will

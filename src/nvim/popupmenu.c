@@ -1142,9 +1142,7 @@ void pum_check_clear(void)
     } else {
       ui_comp_remove_grid(&pum_grid);
       ui_call_win_close(pum_grid.handle);
-      if (ui_has(kUIMultigrid)) {
-        ui_call_grid_destroy(pum_grid.handle);
-      }
+      ui_call_grid_destroy(pum_grid.handle);
       // TODO(bfredl): consider keeping float grids allocated.
       grid_free(&pum_grid);
     }

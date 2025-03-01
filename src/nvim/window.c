@@ -5287,7 +5287,7 @@ void win_free(win_T *wp, tabpage_T *tp)
 
 void win_free_grid(win_T *wp, bool reinit)
 {
-  if (wp->w_grid_alloc.handle != 0 && ui_has(kUIMultigrid)) {
+  if (wp->w_grid_alloc.handle != 0) {
     ui_call_grid_destroy(wp->w_grid_alloc.handle);
   }
   grid_free(&wp->w_grid_alloc);
