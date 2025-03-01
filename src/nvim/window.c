@@ -881,22 +881,18 @@ void ui_ext_win_position(win_T *wp, bool validate)
         ui_check_cursor_grid(wp->w_grid_alloc.handle);
         wp->w_grid_alloc.mouse_enabled = wp->w_config.mouse;
       }
-      if (ui_has(kUIMultigrid)) {
-        String anchor = cstr_as_string(float_anchor_str[c.anchor]);
-        ui_call_win_float_pos(wp->w_grid_alloc.handle, wp->handle, anchor,
-                              grid->handle, row, col, c.mouse,
-                              wp->w_grid_alloc.zindex, (int)wp->w_grid_alloc.comp_index,
-                              wp->w_winrow,
-                              wp->w_wincol);
-      }
+      String anchor = cstr_as_string(float_anchor_str[c.anchor]);
+      ui_call_win_float_pos(wp->w_grid_alloc.handle, wp->handle, anchor,
+                            grid->handle, row, col, c.mouse,
+                            wp->w_grid_alloc.zindex, (int)wp->w_grid_alloc.comp_index,
+                            wp->w_winrow,
+                            wp->w_wincol);
       if (!valid) {
         wp->w_grid_alloc.valid = false;
         redraw_later(wp, UPD_NOT_VALID);
       }
     } else {
-      if (ui_has(kUIMultigrid)) {
-        ui_call_win_hide(wp->w_grid_alloc.handle);
-      }
+      ui_call_win_hide(wp->w_grid_alloc.handle);
       ui_comp_remove_grid(&wp->w_grid_alloc);
     }
   } else {
@@ -2808,9 +2804,7 @@ int win_close(win_T *win, bool free_buf, bool force)
   split_disallowed++;
 
   bool was_floating = win->w_floating;
-  if (ui_has(kUIMultigrid)) {
-    ui_call_win_close(win->w_grid_alloc.handle);
-  }
+  ui_call_win_close(win->w_grid_alloc.handle);
 
   ui_comp_remove_grid(&win->w_grid_alloc);
   assert(first_tabpage != NULL);  // suppress clang "Dereference of NULL pointer"
@@ -6681,11 +6675,9 @@ void win_set_inner_size(win_T *wp, bool valid_cursor)
   wp->w_winrow_off = wp->w_border_adj[0] + wp->w_winbar_height;
   wp->w_wincol_off = wp->w_border_adj[3];
 
-  if (ui_has(kUIMultigrid)) {
-    ui_call_win_viewport_margins(wp->w_grid_alloc.handle, wp->handle,
-                                 wp->w_winrow_off, wp->w_border_adj[2],
-                                 wp->w_wincol_off, wp->w_border_adj[1]);
-  }
+  ui_call_win_viewport_margins(wp->w_grid_alloc.handle, wp->handle,
+                               wp->w_winrow_off, wp->w_border_adj[2],
+                               wp->w_wincol_off, wp->w_border_adj[1]);
 
   wp->w_redr_status = true;
 }
