@@ -366,21 +366,6 @@ describe('vim.ui_attach', function()
     ]]
     screen:expect(s1)
     feed('QQQQQQ<CR>')
-    local messages = {}
-    if t.is_forced_multigrid() then
-      messages = {}
-    else
-      -- FIXME: messags should be empty for non-multigrid as well, since the feed ends with a <CR>
-      -- Or at the very least it should contain the full message
-      -- E354: Invalid register name: '^@'
-      messages = {
-        {
-          content = { { 'Press ENTER or type command to continue', 100, 18 } },
-          history = true,
-          kind = 'return_prompt',
-        },
-      }
-    end
     screen:expect({
       grid = [[
         {9:obal 'err' (a nil value)}                |
@@ -389,7 +374,13 @@ describe('vim.ui_attach', function()
         {9: <[string "<nvim>"]:1>}                  |
         {100:Press ENTER or type command to continue}^ |
       ]],
-      messages = messages,
+      messages = {
+        {
+          content = { { 'Press ENTER or type command to continue', 100, 18 } },
+          history = true,
+          kind = 'return_prompt',
+        },
+      },
     })
     feed(':1mes clear<CR>:mes<CR>')
     screen:expect([[
@@ -406,68 +397,38 @@ describe('vim.ui_attach', function()
         vim.schedule(function() vim.api.nvim_buf_set_lines(0, -2, -1, false, { err[1] }) end)
       end)
     ]])
-    -- FIXME: Neither of these seem correct
-    if t.is_forced_multigrid() then
-      screen:expect({
-        grid = s1,
-        messages = {
-          {
-            content = { { 'Press ENTER or type command to continue', 100, 18 } },
-            history = true,
-            kind = '',
-          },
-          {
-            content = {
-              {
-                'Error executing vim.schedule lua callback: [string "<nvim>"]:2: attempt to index global \'err\' (a nil value)\nstack traceback:\n\t[string "<nvim>"]:2: in function <[string "<nvim>"]:2>',
-                9,
-                6,
-              },
+    screen:expect({
+      grid = s1,
+      messages = {
+        {
+          content = {
+            {
+              'Error executing vim.schedule lua callback: [string "<nvim>"]:2: attempt to index global \'err\' (a nil value)\nstack traceback:\n\t[string "<nvim>"]:2: in function <[string "<nvim>"]:2>',
+              9,
+              6,
             },
-            history = true,
-            kind = 'lua_error',
           },
-          {
-            content = { { 'Press ENTER or type command to continue', 100, 18 } },
-            history = false,
-            kind = 'return_prompt',
-          },
+          history = true,
+          kind = 'lua_error',
         },
-      })
-    else
-      screen:expect({
-        grid = s1,
-        messages = {
-          {
-            content = {
-              {
-                'Error executing vim.schedule lua callback: [string "<nvim>"]:2: attempt to index global \'err\' (a nil value)\nstack traceback:\n\t[string "<nvim>"]:2: in function <[string "<nvim>"]:2>',
-                9,
-                6,
-              },
+        {
+          content = {
+            {
+              'Error executing vim.schedule lua callback: [string "<nvim>"]:2: attempt to index global \'err\' (a nil value)\nstack traceback:\n\t[string "<nvim>"]:2: in function <[string "<nvim>"]:2>',
+              9,
+              6,
             },
-            history = true,
-            kind = 'lua_error',
           },
-          {
-            content = {
-              {
-                'Error executing vim.schedule lua callback: [string "<nvim>"]:2: attempt to index global \'err\' (a nil value)\nstack traceback:\n\t[string "<nvim>"]:2: in function <[string "<nvim>"]:2>',
-                9,
-                6,
-              },
-            },
-            history = true,
-            kind = 'lua_error',
-          },
-          {
-            content = { { 'Press ENTER or type command to continue', 100, 18 } },
-            history = false,
-            kind = 'return_prompt',
-          },
+          history = true,
+          kind = 'lua_error',
         },
-      })
-    end
+        {
+          content = { { 'Press ENTER or type command to continue', 100, 18 } },
+          history = false,
+          kind = 'return_prompt',
+        },
+      },
+    })
     feed('<esc>:1mes clear<cr>:mes<cr>')
     screen:expect([[
                                               |
