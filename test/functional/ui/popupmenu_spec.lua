@@ -7532,6 +7532,208 @@ describe('builtin popupmenu', function()
       command('set norightleft')
     end)
 
+    describe('testme mousemodel=popup with right mouse drag select', function()
+      before_each(function()
+          screen:try_resize(32, 16)
+        exec([[
+          set mouse=a mousemodel=popup
+
+          " Delete the default MenuPopup event handler.
+          autocmd! nvim.popupmenu
+          aunmenu PopUp
+          menu PopUp.foo :let g:menustr = 'foo'<CR>
+          menu PopUp.bar :let g:menustr = 'bar'<CR>
+          menu PopUp.baz :let g:menustr = 'baz'<CR>
+        ]])
+        api.nvim_buf_set_lines(0, 0, -1, true, { 'popup menu test', 'another line' })
+      end)
+      it('on the global grid', function()
+        if multigrid then
+          api.nvim_input_mouse('right', 'press', '', 2, 1, 4)
+          screen:expect({
+            grid = [[
+          ## grid 1
+            [2:--------------------------------]|*15
+            [3:--------------------------------]|
+          ## grid 2
+            ^popup menu test                 |
+            another line                    |
+            {1:~                               }|*13
+          ## grid 3
+                                            |
+          ## grid 4
+            {n: foo }|
+            {n: bar }|
+            {n: baz }|
+          ]],
+            float_pos = { [4] = { -1, 'NW', 2, 2, 3, false, 250, 2, 2, 3 } },
+          })
+        else
+          feed('<RightMouse><4,1>')
+          screen:expect([[
+            ^popup menu test                 |
+            another line                    |
+            {1:~  }{n: foo }{1:                        }|
+            {1:~  }{n: bar }{1:                        }|
+            {1:~  }{n: baz }{1:                        }|
+            {1:~                               }|*10
+                                            |
+          ]])
+        end
+        if multigrid then
+          api.nvim_input_mouse('right', 'drag', '', 2, 4, 6)
+          screen:expect({
+            grid = [[
+          ## grid 1
+            [2:--------------------------------]|*15
+            [3:--------------------------------]|
+          ## grid 2
+            ^popup menu test                 |
+            another line                    |
+            {1:~                               }|*13
+          ## grid 3
+                                            |
+          ## grid 4
+            {n: foo }|
+            {n: bar }|
+            {s: baz }|
+          ]],
+            float_pos = { [4] = { -1, 'NW', 2, 2, 3, false, 250, 2, 2, 3 } },
+          })
+        else
+          feed('<RightDrag><6,4>')
+          screen:expect([[
+            ^popup menu test                 |
+            another line                    |
+            {1:~  }{n: foo }{1:                        }|
+            {1:~  }{n: bar }{1:                        }|
+            {1:~  }{s: baz }{1:                        }|
+            {1:~                               }|*10
+                                            |
+          ]])
+        end
+        if multigrid then
+          api.nvim_input_mouse('right', 'release', '', 2, 4, 6)
+          screen:expect({
+            grid = [[
+            ## grid 1
+              [2:--------------------------------]|*15
+              [3:--------------------------------]|
+            ## grid 2
+              ^popup menu test                 |
+              another line                    |
+              {1:~                               }|*13
+            ## grid 3
+              :let g:menustr = 'baz'          |
+            ]]})
+        else
+          feed('<RightRelease><6,4>')
+          screen:expect([[
+            ^popup menu test                 |
+            another line                    |
+            {1:~                               }|*13
+            :let g:menustr = 'baz'          |
+          ]])
+        end
+      end)
+      it('with winbar', function()
+        api.nvim_set_option_value('winbar', 'winbar', {})
+        if multigrid then
+          api.nvim_input_mouse('right', 'press', '', 2, 2, 4)
+          screen:expect({
+            grid = [[
+          ## grid 1
+            [2:--------------------------------]|*15
+            [3:--------------------------------]|
+          ## grid 2
+            {2:winbar                          }|
+            ^popup menu test                 |
+            another line                    |
+            {1:~                               }|*12
+          ## grid 3
+                                            |
+          ## grid 4
+            {n: foo }|
+            {n: bar }|
+            {n: baz }|
+          ]],
+            float_pos = { [4] = { -1, 'NW', 2, 3, 3, false, 250, 2, 3, 3 } },
+          })
+        else
+          feed('<RightMouse><4,2>')
+          screen:expect([[
+            {2:winbar                          }|
+            ^popup menu test                 |
+            another line                    |
+            {1:~  }{n: foo }{1:                        }|
+            {1:~  }{n: bar }{1:                        }|
+            {1:~  }{n: baz }{1:                        }|
+            {1:~                               }|*9
+                                            |
+          ]])
+        end
+        if multigrid then
+          api.nvim_input_mouse('right', 'drag', '', 2, 5, 6)
+          screen:expect({
+            grid = [[
+          ## grid 1
+            [2:--------------------------------]|*15
+            [3:--------------------------------]|
+          ## grid 2
+            {2:winbar                          }|
+            ^popup menu test                 |
+            another line                    |
+            {1:~                               }|*12
+          ## grid 3
+                                            |
+          ## grid 4
+            {n: foo }|
+            {n: bar }|
+            {s: baz }|
+          ]],
+            float_pos = { [4] = { -1, 'NW', 2, 3, 3, false, 250, 2, 3, 3 } },
+          })
+        else
+          feed('<RightDrag><6,5>')
+          screen:expect([[
+            {2:winbar                          }|
+            ^popup menu test                 |
+            another line                    |
+            {1:~  }{n: foo }{1:                        }|
+            {1:~  }{n: bar }{1:                        }|
+            {1:~  }{s: baz }{1:                        }|
+            {1:~                               }|*9
+                                            |
+          ]])
+        end
+        if multigrid then
+          api.nvim_input_mouse('right', 'release', '', 2, 5, 6)
+          screen:expect({
+            grid = [[
+            ## grid 1
+              [2:--------------------------------]|*15
+              [3:--------------------------------]|
+            ## grid 2
+              {2:winbar                          }|
+              ^popup menu test                 |
+              another line                    |
+              {1:~                               }|*12
+            ## grid 3
+              :let g:menustr = 'baz'          |
+            ]]})
+        else
+          feed('<RightRelease><6,5>')
+          screen:expect([[
+            {2:winbar                          }|
+            ^popup menu test                 |
+            another line                    |
+            {1:~                               }|*12
+            :let g:menustr = 'baz'          |
+          ]])
+        end
+      end)
+    end)
+
     if not multigrid then
       -- oldtest: Test_popup_command_dump()
       it(':popup command', function()
@@ -8840,6 +9042,7 @@ describe('builtin popupmenu', function()
       end)
     end
   end
+
 
   describe('with ext_multigrid', function()
     with_ext_multigrid(true)

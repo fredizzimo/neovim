@@ -1397,6 +1397,7 @@ static void pum_select_mouse_pos(void)
     pum_selected = -1;
     return;
   }
+  pum_selected = -1;
 
   int idx = mouse_row - pum_grid.comp_row;
 
