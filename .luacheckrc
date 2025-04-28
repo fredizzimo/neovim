@@ -40,6 +40,7 @@ globals = {
   "vim.go",
   "vim.env",
   "_",
+  "bit",
 }
 
 exclude_files = {

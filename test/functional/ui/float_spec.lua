@@ -7566,6 +7566,12 @@ describe('float window', function()
           ]])
         end
 
+        if not multigrid and not t.is_forced_multigrid() then
+          eq("UI doesn't support external windows", pcall_err(api.nvim_win_set_config, 0, { external = true, width = 30, height = 2 }))
+          return
+        end
+        api.nvim_win_set_config(0, { external = true, width = 30, height = 2 })
+
         if multigrid then
           api.nvim_win_set_config(0, { external = true, width = 30, height = 2 })
           screen:expect {
@@ -7586,8 +7592,14 @@ describe('float window', function()
             float_pos = { [4] = { external = true } },
           }
         else
-          eq("UI doesn't support external windows", pcall_err(api.nvim_win_set_config, 0, { external = true, width = 30, height = 2 }))
-          return
+          screen:expect([[
+            x                                       |
+            {0:~                                       }|*2
+            {0:^~                                       }|
+            {0:~                                       }|
+            {5:[No Name] [+]                           }|
+                                                    |
+          ]])
         end
 
         feed('<c-w>J')
@@ -7925,7 +7937,9 @@ describe('float window', function()
             float_pos = expected_pos,
           }
         else
-          eq("UI doesn't support external windows", pcall_err(api.nvim_win_set_config, 0, { external = true, width = 65, height = 4 }))
+          if not t.is_forced_multigrid() then
+            eq("UI doesn't support external windows", pcall_err(api.nvim_win_set_config, 0, { external = true, width = 65, height = 4 }))
+          end
         end
 
         feed(':tabnext<cr>')
@@ -10096,6 +10110,7 @@ describe('float window', function()
       )
 
       if multigrid then
+        -- FIXME: The grid is not resized
         screen:expect {
           grid = [[
         ## grid 1
@@ -10119,6 +10134,19 @@ describe('float window', function()
             [2] = { win = 1000, topline = 0, botline = 2, curline = 0, curcol = 0, linecount = 1, sum_scroll_delta = 0 },
             [4] = { win = 1001, topline = 0, botline = 2, curline = 0, curcol = 0, linecount = 1, sum_scroll_delta = 0 },
           },
+        }
+      elseif t.is_forced_multigrid() then
+        -- FIXME: The grid is not resized
+        screen:expect {
+          grid = [[
+                                                  |
+          {0:~                                       }|*3
+          {5:┌──────────────────────────────────────┐}|
+          {5:│}{1:                                      }{5:│}|
+          {4:                                        }|
+                                                  |
+          {8:Press ENTER or type command to continue}^ |
+        ]],
         }
       else
         screen:expect {

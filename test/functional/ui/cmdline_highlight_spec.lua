@@ -175,6 +175,8 @@ end
 
 describe('Command-line coloring', function()
   it('works', function()
+    t.skip_forced_multigrid_reattach()
+
     set_color_cb('RainBowParens')
     api.nvim_set_option_value('more', false, {})
     start_prompt()

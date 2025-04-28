@@ -1072,6 +1072,7 @@ describe("builtin popupmenu 'pumblend'", function()
   end)
 
   it('256-color (non-RGB)', function()
+    t.skip_forced_mulitgrid('Only true color supported')
     screen._options.rgb = false
     command('set pumblend=10')
     insert([[

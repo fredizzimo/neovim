@@ -3175,7 +3175,7 @@ describe('API', function()
           ext_hlstate = false,
           ext_linegrid = screen._options.ext_linegrid or false,
           ext_messages = false,
-          ext_multigrid = false,
+          ext_multigrid = t.is_forced_multigrid(),
           ext_popupmenu = false,
           ext_tabline = false,
           ext_termcolors = false,
