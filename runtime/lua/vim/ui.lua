@@ -1,4 +1,6 @@
-local M = {}
+local M = vim._defer_require('vim.ui', {
+  img = ..., --- @module 'vim.ui.img'
+})
 
 --- Prompts the user to pick from a list of items, allowing arbitrary (potentially asynchronous)
 --- work until `on_choice`.

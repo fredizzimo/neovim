@@ -25,6 +25,14 @@ typedef struct {
 } Dict(set_decoration_provider);
 
 typedef struct {
+  OptionalKeys is_set__set_extmark_image_;
+  LuaRef data;
+  Integer width;
+  Integer height;
+  LuaRef _decor_image;
+} Dict(set_extmark_image);
+
+typedef struct {
   OptionalKeys is_set__set_extmark_;
   Integer id;
   Integer end_line;
@@ -60,6 +68,7 @@ typedef struct {
   Boolean undo_restore;
   String url;
   Boolean scoped;
+  LuaRef image;
 } Dict(set_extmark);
 
 typedef struct {
@@ -76,6 +85,17 @@ typedef struct {
   Boolean overlap;
   String type;
 } Dict(get_extmarks);
+
+typedef struct {
+  OptionalKeys is_set__extmark_image_;
+  Integer img_id;
+  Integer img_width;
+  Integer img_height;
+  Boolean keep_aspect;
+  Integer start_col;
+  Integer start_row;
+  Integer num_cols;
+} Dict(extmark_image);
 
 typedef struct {
   OptionalKeys is_set__keymap_;

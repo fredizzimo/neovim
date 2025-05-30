@@ -177,3 +177,9 @@ void msg_history_clear(void)
 
 void error_exit(Integer status)
   FUNC_API_SINCE(12);
+
+void img_add(Integer id, String data)
+  FUNC_API_SINCE(14) FUNC_API_REMOTE_ONLY;
+
+void img_show(Integer id, Integer img_id, Integer width, Integer height, Boolean keep_aspect)
+  FUNC_API_SINCE(14) FUNC_API_REMOTE_ONLY;

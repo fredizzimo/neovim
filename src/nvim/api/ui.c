@@ -779,9 +779,19 @@ void remote_ui_raw_line(RemoteUI *ui, Integer grid, Integer row, Integer startco
     int last_hl = -1;
     uint32_t nelem = 0;
     bool was_space = false;
+    size_t cur_img_id = SIZE_MAX;
+    size_t cur_img_cell = SIZE_MAX;
+    if (ncells > 0) {
+      get_image_from_schar(chunk[0], &cur_img_id, &cur_img_cell);
+    }
     for (size_t i = 0; i < ncells; i++) {
       repeat++;
-      if (i == ncells - 1 || attrs[i] != attrs[i + 1] || chunk[i] != chunk[i + 1]) {
+      size_t next_img_id = SIZE_MAX;
+      size_t next_img_cell = SIZE_MAX;
+      if ( i < ncells - 1) {
+        get_image_from_schar(chunk[i + 1], &next_img_id, &next_img_cell);
+      }
+      if (i == ncells - 1 || attrs[i] != attrs[i + 1] || (chunk[i] != chunk[i + 1] && cur_img_id == SIZE_MAX && next_img_id==SIZE_MAX) || cur_img_id != next_img_id || next_img_cell != cur_img_cell + 1) {
         if (
             // Close to overflowing the redraw buffer. Finish this event, flush,
             // and start a new "grid_line" event at the current position.
@@ -815,7 +825,9 @@ void remote_ui_raw_line(RemoteUI *ui, Integer grid, Integer row, Integer startco
           nelem = 0;
           last_hl = -1;
         }
-        uint32_t csize = (repeat > 1) ? 3 : ((attrs[i] != last_hl) ? 2 : 1);
+
+        bool is_image = cur_img_cell != SIZE_MAX;
+        uint32_t csize = is_image ? 5 : ((repeat > 1) ? 3 : ((attrs[i] != last_hl) ? 2 : 1));
         nelem++;
         mpack_array(buf, csize);
         char *size_byte = (*buf)++;
@@ -826,12 +838,18 @@ void remote_ui_raw_line(RemoteUI *ui, Integer grid, Integer row, Integer startco
           if (csize >= 3) {
             mpack_uint(buf, repeat);
           }
+          if (csize >= 5) {
+            mpack_uint(buf, cur_img_id);
+            mpack_uint(buf, cur_img_cell - repeat);
+          }
         }
         ui->ncells_pending += MIN(repeat, 2);
         last_hl = attrs[i];
         repeat = 0;
         was_space = chunk[i] == schar_from_ascii(' ');
       }
+      cur_img_id = next_img_id;
+      cur_img_cell = next_img_cell;
     }
     // If the last chunk was all spaces, add a clearing chunk even if there are
     // no more cells to clear, so there is no ambiguity about what to clear.

@@ -7,6 +7,7 @@
 #include "nvim/api/private/defs.h"
 #include "nvim/assert_defs.h"
 #include "nvim/highlight_defs.h"
+#include "nvim/image.h"
 #include "nvim/types_defs.h"
 
 #if defined(__NetBSD__)
@@ -49,6 +50,7 @@ static const uint64_t value_init_uint64_t = 0;
 static const int64_t value_init_int64_t = 0;
 static const String value_init_String = STRING_INIT;
 static const ColorItem value_init_ColorItem = COLOR_ITEM_INITIALIZER;
+static const ImagePlacement value_init_ImagePlacement = IMAGE_PLACEMENT_INITIALIZER;
 
 // layer 0: type non-specific code
 
@@ -151,6 +153,7 @@ KEY_DECLS(uint32_t)
 KEY_DECLS(String)
 KEY_DECLS(HlEntry)
 KEY_DECLS(ColorKey)
+KEY_DECLS(ImagePlacement)
 
 MAP_DECLS(int, int)
 MAP_DECLS(int, ptr_t)
@@ -167,6 +170,8 @@ MAP_DECLS(uint32_t, uint32_t)
 MAP_DECLS(String, int)
 MAP_DECLS(int, String)
 MAP_DECLS(ColorKey, ColorItem)
+MAP_DECLS(ImagePlacement, int)
+MAP_DECLS(int, ImagePlacement)
 
 #define set_has(T, set, key) set_has_##T(set, key)
 #define set_put(T, set, key) set_put_##T(set, key, NULL)

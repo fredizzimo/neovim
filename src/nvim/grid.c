@@ -25,6 +25,7 @@
 #include "nvim/globals.h"
 #include "nvim/grid.h"
 #include "nvim/highlight.h"
+#include "nvim/image.h"
 #include "nvim/log.h"
 #include "nvim/map_defs.h"
 #include "nvim/mbyte.h"
@@ -35,6 +36,7 @@
 #include "nvim/types_defs.h"
 #include "nvim/ui.h"
 #include "nvim/ui_defs.h"
+#include "nvim/image.h"
 
 #ifdef INCLUDE_GENERATED_DECLARATIONS
 # include "grid.c.generated.h"
@@ -91,10 +93,17 @@ schar_T schar_from_buf(const char *buf, size_t len)
     return sc;
   } else {
     String str = { .data = (char *)buf, .size = len };
+    uint32_t idx;
+    if (buf[0] == ImageMagicUtf8[0] && buf[1] == ImageMagicUtf8[1] && buf[2] == ImageMagicUtf8[2]) {
+       idx = 0x800000 | schar_idx_from_image(str);
+       assert(idx < 0xFFFFFF);
+    } else {
+      MHPutStatus status;
+      idx = set_put_idx(glyph, &glyph_cache, str, &status);
+      assert(idx < 0xFFFFFF);
+    }
 
-    MHPutStatus status;
-    uint32_t idx = set_put_idx(glyph, &glyph_cache, str, &status);
-    assert(idx < 0xFFFFFF);
+
 #ifdef ORDER_BIG_ENDIAN
     return idx + ((uint32_t)0xFF << 24);
 #else
@@ -148,6 +157,20 @@ bool schar_high(schar_T sc)
 # define schar_idx(sc) (sc >> 8)
 #endif
 
+static inline bool is_image_idx(uint32_t idx) {
+  return idx & 0x800000;
+}
+
+size_t sc_image_idx(schar_T sc) {
+  if (schar_high(sc)) {
+    size_t idx = schar_idx(sc);
+    if (is_image_idx(idx)) {
+      return idx & 0x7FFFFF; 
+    }
+  }
+  return SIZE_MAX;
+}
+
 /// sets final NUL
 size_t schar_get(char *buf_out, schar_T sc)
 {
@@ -162,9 +185,14 @@ size_t schar_get_adv(char **buf_out, schar_T sc)
   size_t len;
   if (schar_high(sc)) {
     uint32_t idx = schar_idx(sc);
-    assert(idx < glyph_cache.h.n_keys);
-    len = strlen(&glyph_cache.keys[idx]);
-    memcpy(*buf_out, &glyph_cache.keys[idx], len);
+    if (is_image_idx(idx)) {
+      **buf_out = ' ';
+      len = 1;
+    } else {
+      assert(idx < glyph_cache.h.n_keys);
+      len = strlen(&glyph_cache.keys[idx]);
+      memcpy(*buf_out, &glyph_cache.keys[idx], len);
+    }
   } else {
     len = strnlen((char *)&sc, 4);
     memcpy(*buf_out, (char *)&sc, len);
@@ -177,8 +205,12 @@ size_t schar_len(schar_T sc)
 {
   if (schar_high(sc)) {
     uint32_t idx = schar_idx(sc);
-    assert(idx < glyph_cache.h.n_keys);
-    return strlen(&glyph_cache.keys[idx]);
+    if (is_image_idx(idx)) {
+      return 1;
+    } else {
+      assert(idx < glyph_cache.h.n_keys);
+      return strlen(&glyph_cache.keys[idx]);
+    }
   } else {
     return strnlen((char *)&sc, 4);
   }
@@ -205,8 +237,17 @@ int schar_cells(schar_T sc)
 /// gets first raw UTF-8 byte of an schar
 static char schar_get_first_byte(schar_T sc)
 {
-  assert(!(schar_high(sc) && schar_idx(sc) >= glyph_cache.h.n_keys));
-  return schar_high(sc) ? glyph_cache.keys[schar_idx(sc)] : *(char *)&sc;
+  if (schar_high(sc) ){
+    size_t idx = schar_idx(sc);
+    if (is_image_idx(idx)) {
+      return ' ';
+    } else {
+      assert(idx < glyph_cache.h.n_keys);
+      return glyph_cache.keys[schar_idx(sc)]; 
+    }
+  } else {
+    return *(char*)&sc;
+  }
 }
 
 int schar_get_first_codepoint(schar_T sc)

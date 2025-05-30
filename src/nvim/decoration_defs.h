@@ -4,6 +4,7 @@
 
 #include "klib/kvec.h"
 #include "nvim/api/private/defs.h"
+#include "nvim/image.h"
 #include "nvim/types_defs.h"
 
 #define DECOR_ID_INVALID UINT32_MAX
@@ -84,7 +85,6 @@ typedef struct {
 
 #define DECOR_SIGN_HIGHLIGHT_INIT { 0, DECOR_PRIORITY_BASE, 0, { 0, 0 }, NULL, 0, 0, 0, 0, \
                                     DECOR_ID_INVALID, NULL }
-
 enum {
   kVTIsLines = 1,
   kVTHide = 2,
@@ -105,12 +105,15 @@ struct DecorVirtText {
     VirtText virt_text;
     VirtLines virt_lines;
   } data;
+  LuaRef image_ref;
+  DecorImage *image;
   DecorVirtText *next;
 };
 #define DECOR_VIRT_TEXT_INIT { 0, kHlModeUnknown, DECOR_PRIORITY_BASE, 0, 0, kVPosEndOfLine, \
-                               { .virt_text = KV_INITIAL_VALUE }, NULL, }
+                               { .virt_text = KV_INITIAL_VALUE }, LUA_NOREF, NULL, NULL, }
 #define DECOR_VIRT_LINES_INIT { kVTIsLines, kHlModeUnknown, DECOR_PRIORITY_BASE, 0, 0, \
-                                kVPosEndOfLine, { .virt_lines = KV_INITIAL_VALUE }, NULL, }
+                                kVPosEndOfLine, { .virt_lines = KV_INITIAL_VALUE }, LUA_NOREF, NULL, \
+                                NULL, }
 
 typedef struct {
   uint32_t sh_idx;

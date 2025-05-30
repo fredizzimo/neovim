@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <lauxlib.h>
+#include <lua.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
@@ -21,6 +22,7 @@
 #include "nvim/globals.h"
 #include "nvim/grid.h"
 #include "nvim/highlight_group.h"
+#include "nvim/image.h"
 #include "nvim/map_defs.h"
 #include "nvim/marktree.h"
 #include "nvim/marktree_defs.h"
@@ -522,7 +524,7 @@ Array nvim_buf_get_extmarks(Buffer buffer, Integer ns_id, Object start, Object e
 /// @param[out]  err   Error details, if any
 /// @return Id of the created/updated extmark
 Integer nvim_buf_set_extmark(Buffer buffer, Integer ns_id, Integer line, Integer col,
-                             Dict(set_extmark) *opts, Error *err)
+                             Dict(set_extmark) *opts, Arena *arena, Error *err)
   FUNC_API_SINCE(7)
 {
   DecorHighlightInline hl = DECOR_HIGHLIGHT_INLINE_INIT;
@@ -913,6 +915,15 @@ Integer nvim_buf_set_extmark(Buffer buffer, Integer ns_id, Integer line, Integer
       decor_flags |= MT_FLAG_DECOR_HL;
     }
 
+    // TODO(fredizzimo): Need decor alloc
+    if (!ERROR_SET(err) && HAS_KEY(opts, set_extmark, image)) {
+      DecorImage *decor_image = init_image(opts, arena, err);
+      // Ensure that the image isn't garbage collected as long as the extmark is valid
+      decor.data.ext.vt->image_ref = opts->image;
+      opts->image = LUA_NOREF;
+      decor.data.ext.vt->image = decor_image;
+    }
+
     extmark_set(buf, (uint32_t)ns_id, &id, (int)line, (colnr_T)col, line2, col2,
                 decor, decor_flags, right_gravity, opts->end_right_gravity,
                 !GET_BOOL_OR_TRUE(opts, set_extmark, undo_restore),
@@ -1152,12 +1163,14 @@ VirtText parse_virt_text(Array chunks, Error *err, int *width)
       goto free_exit;
     });
     Array chunk = chunks.items[i].data.array;
-    VALIDATE((chunk.size > 0 && chunk.size <= 2 && chunk.items[0].type == kObjectTypeString),
-             "%s", "Invalid chunk: expected Array with 1 or 2 Strings", {
+    VALIDATE((chunk.size > 0 && chunk.size <= 2 && (chunk.items[0].type == kObjectTypeString || chunk.items[0].type == kObjectTypeDict)),
+             "%s", "Invalid chunk: expected Array with 1 or 2 elements", {
       goto free_exit;
     });
-
-    String str = chunk.items[0].data.string;
+    VALIDATE((chunk.items[0].type == kObjectTypeString || chunk.items[0].type == kObjectTypeDict),
+             "%s", "Invalid chunk: The first element should be a string or image", {
+      goto free_exit;
+    });
 
     int hl_id = -1;
     if (chunk.size == 2) {
@@ -1181,10 +1194,34 @@ VirtText parse_virt_text(Array chunks, Error *err, int *width)
       }
     }
 
-    char *text = transstr(str.size > 0 ? str.data : "", false);  // allocates
-    w += (int)mb_string2cells(text);
+    if (chunk.items[0].type == kObjectTypeString) {
+      String str = chunk.items[0].data.string;
+      char *text = transstr(str.size > 0 ? str.data : "", false);  // allocates
+      w += (int)mb_string2cells(text);
 
-    kv_push(virt_text, ((VirtTextChunk){ .text = text, .hl_id = hl_id }));
+      kv_push(virt_text, ((VirtTextChunk){ .text = text, .hl_id = hl_id }));
+    } else {
+      KeyDict_extmark_image img;
+      if (!api_dict_to_keydict(&img, KeyDict_extmark_image_get_field, chunk.items[0].data.dict, err)) {
+        goto free_exit;
+      }
+      VALIDATE(HAS_KEY(&img, extmark_image, img_id),
+             "%s", "Invalid chunk: Missing image id", {
+        goto free_exit;
+      });
+      // TODO(fredizzimo): Validate the rest
+
+      ImagePlacement placement = {
+        .img_id = img.img_id,
+        .width = img.img_width,
+        .height = img.img_height,
+        .keep_aspect = img.keep_aspect,
+      };
+
+      uint32_t placement_id = image_create_placement(placement);
+      char* text = image_convert_to_text(placement_id, img.start_col, img.num_cols, img.start_row);
+      kv_push(virt_text, ((VirtTextChunk){ .text = text, .hl_id = hl_id }));
+    }
   }
 
   if (width != NULL) {

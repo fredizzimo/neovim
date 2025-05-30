@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include "auto/config.h"
+#include "nvim/image.h"
 #include "nvim/map_defs.h"
 #include "nvim/memory.h"
 
@@ -72,6 +73,21 @@ static inline bool equal_ColorKey(ColorKey ae1, ColorKey ae2)
   return memcmp(&ae1, &ae2, sizeof(ae1)) == 0;
 }
 
+static inline uint32_t hash_ImagePlacement(ImagePlacement ae)
+{
+  const uint8_t *data = (const uint8_t *)&ae;
+  uint32_t h = 0;
+  for (size_t i = 0; i < sizeof(ImagePlacement); i++) {
+    h = (h << 5) - h + data[i];
+  }
+  return h;
+}
+
+static inline bool equal_ImagePlacement(ImagePlacement ae1, ImagePlacement ae2)
+{
+  return memcmp(&ae1, &ae2, sizeof(ae1)) == 0;
+}
+
 // TODO(bfredl): this could be _less_ for the h->hash part as this is now small (4 bytes per value)
 #define UPPER_FILL 0.77
 
@@ -109,6 +125,9 @@ void mh_clear(MapHash *h)
 #include "nvim/map_value_impl.c.h"
 #undef VAL_NAME
 #define VAL_NAME(x) quasiquote(x, String)
+#include "nvim/map_value_impl.c.h"
+#undef VAL_NAME
+#define VAL_NAME(x) quasiquote(x, ImagePlacement)
 #include "nvim/map_value_impl.c.h"
 #undef VAL_NAME
 #undef KEY_NAME
@@ -177,6 +196,13 @@ void mh_clear(MapHash *h)
 #define KEY_NAME(x) x##ColorKey
 #include "nvim/map_key_impl.c.h"
 #define VAL_NAME(x) quasiquote(x, ColorItem)
+#include "nvim/map_value_impl.c.h"
+#undef VAL_NAME
+#undef KEY_NAME
+
+#define KEY_NAME(x) x##ImagePlacement
+#include "nvim/map_key_impl.c.h"
+#define VAL_NAME(x) quasiquote(x, int)
 #include "nvim/map_value_impl.c.h"
 #undef VAL_NAME
 #undef KEY_NAME

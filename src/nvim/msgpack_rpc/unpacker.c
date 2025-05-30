@@ -464,7 +464,7 @@ bool unpacker_parse_redraw(Unpacker *p)
 
       NEXT_TYPE(tok, MPACK_TOKEN_ARRAY);
       int cellarrsize = (int)tok.length;
-      if (cellarrsize < 1 || cellarrsize > 3) {
+      if (cellarrsize < 1 || cellarrsize > 5) {
         p->state = -1;
         return false;
       }
@@ -488,6 +488,11 @@ bool unpacker_parse_redraw(Unpacker *p)
       if (cellarrsize >= 3) {
         NEXT_TYPE(tok, MPACK_TOKEN_UINT);
         repeat = (int)tok.data.value.lo;
+      }
+      if (cellarrsize >= 4) {
+        // TODO(fredizzimo) handle this correctly
+        NEXT_TYPE(tok, MPACK_TOKEN_UINT);
+        NEXT_TYPE(tok, MPACK_TOKEN_UINT);
       }
 
       g->clear_width = 0;

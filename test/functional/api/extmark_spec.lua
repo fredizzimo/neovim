@@ -1884,6 +1884,24 @@ describe('API/extmarks', function()
       },
     }
   end)
+
+  it('can create image', function()
+    n.exec_lua(
+      [[
+      local ns = ...
+        local image = {
+          data = "Hello"
+        }
+      vim.api.nvim_buf_set_extmark(0, ns, 0, 0, {
+        image = image
+      })
+      vim.api.nvim_buf_set_extmark(0, ns, 1, 0, {
+        image = image
+      })
+    ]],
+      ns
+    )
+  end)
 end)
 
 describe('Extmarks buffer api with many marks', function()

@@ -20,6 +20,7 @@
 #include "nvim/grid.h"
 #include "nvim/highlight.h"
 #include "nvim/highlight_group.h"
+#include "nvim/lua/executor.h"
 #include "nvim/marktree.h"
 #include "nvim/memory.h"
 #include "nvim/memory_defs.h"
@@ -294,6 +295,10 @@ static void decor_free_inner(DecorVirtText *vt, uint32_t first_idx)
     }
     DecorVirtText *tofree = vt;
     vt = vt->next;
+    if (tofree->image_ref != LUA_NOREF) {
+      image_free(tofree->image);
+      api_free_luaref(tofree->image_ref);
+    }
     xfree(tofree);
   }
 
@@ -610,6 +615,10 @@ static void decor_range_insert(DecorState *state, DecorRange *range)
 void decor_range_add_virt(DecorState *state, int start_row, int start_col, int end_row, int end_col,
                           DecorVirtText *vt, bool owned)
 {
+  // TODO(fredizzimo): Is this the wrong place?
+  if (vt->image) {
+    access_image(vt->image);
+  }
   bool is_lines = vt->flags & kVTIsLines;
   DecorRange range = {
     .start_row = start_row, .start_col = start_col, .end_row = end_row, .end_col = end_col,
