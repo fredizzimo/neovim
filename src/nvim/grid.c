@@ -85,7 +85,7 @@ schar_T schar_from_str(const char *str)
 schar_T schar_from_buf(const char *buf, size_t len)
 {
   assert(len < MAX_SCHAR_SIZE);
-  if (len <= 4) {
+  if (len <= 8) {
     schar_T sc = 0;
     memcpy((char *)&sc, buf, len);
     return sc;
@@ -96,7 +96,7 @@ schar_T schar_from_buf(const char *buf, size_t len)
     uint32_t idx = set_put_idx(glyph, &glyph_cache, str, &status);
     assert(idx < 0xFFFFFF);
 #ifdef ORDER_BIG_ENDIAN
-    return idx + ((uint32_t)0xFF << 24);
+    return idx + ((schar_t)0xFF << 56);
 #else
     return 0xFF + (idx << 8);
 #endif
@@ -136,14 +136,15 @@ void schar_cache_clear(void)
 bool schar_high(schar_T sc)
 {
 #ifdef ORDER_BIG_ENDIAN
-  return ((sc & 0xFF000000) == 0xFF000000);
+  return ((sc & 0xFF00000000000000) == 0xFF00000000000000);
 #else
   return ((sc & 0xFF) == 0xFF);
 #endif
 }
 
+// NOTE: Indices are only 24 bits
 #ifdef ORDER_BIG_ENDIAN
-# define schar_idx(sc) (sc & (0x00FFFFFF))
+# define schar_idx(sc) (sc & (0x00FFFFFF00000000))
 #else
 # define schar_idx(sc) (sc >> 8)
 #endif
@@ -166,7 +167,7 @@ size_t schar_get_adv(char **buf_out, schar_T sc)
     len = strlen(&glyph_cache.keys[idx]);
     memcpy(*buf_out, &glyph_cache.keys[idx], len);
   } else {
-    len = strnlen((char *)&sc, 4);
+    len = strnlen((char *)&sc, 8);
     memcpy(*buf_out, (char *)&sc, len);
   }
   *buf_out += len;
@@ -180,7 +181,7 @@ size_t schar_len(schar_T sc)
     assert(idx < glyph_cache.h.n_keys);
     return strlen(&glyph_cache.keys[idx]);
   } else {
-    return strnlen((char *)&sc, 4);
+    return strnlen((char *)&sc, 8);
   }
 }
 
@@ -188,7 +189,7 @@ int schar_cells(schar_T sc)
 {
   // hot path
 #ifdef ORDER_BIG_ENDIAN
-  if (!(sc & 0x80FFFFFF)) {
+  if (!(sc & 0x80FFFFFFFFFFFFFF) {
     return 1;
   }
 #else
@@ -220,7 +221,7 @@ int schar_get_first_codepoint(schar_T sc)
 char schar_get_ascii(schar_T sc)
 {
 #ifdef ORDER_BIG_ENDIAN
-  return (!(sc & 0x80FFFFFF)) ? *(char *)&sc : NUL;
+  return (!(sc & 0x80FFFFFFFFFFFFFF)) ? *(char *)&sc : NUL;
 #else
   return (sc < 0x80) ? (char)sc : NUL;
 #endif

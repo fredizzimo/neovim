@@ -979,7 +979,7 @@ void decor_redraw_signs(win_T *wp, buf_T *buf, int row, SignTextAttrs sattrs[], 
     for (size_t i = 0; i < kv_size(signs); i++) {
       DecorSignHighlight *sh = kv_A(signs, i).sh;
       if (sattrs && idx < len && sh->text[0]) {
-        memcpy(sattrs[idx].text, sh->text, SIGN_WIDTH * sizeof(sattr_T));
+        memcpy(sattrs[idx].text, sh->text, SIGN_WIDTH * sizeof(schar_T));
         sattrs[idx++].hl_id = sh->hl_id;
       }
       if (num_id != NULL && *num_id <= 0) {

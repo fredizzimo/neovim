@@ -2013,10 +2013,11 @@ describe('extmark decorations', function()
   it('conceal with composed conceal char', function()
     screen:try_resize(50, 5)
     insert('foo\n')
-    api.nvim_buf_set_extmark(0, ns, 0, 0, { end_col = 0, end_row = 2, conceal = 'ẍ̲' })
+    -- x̀́̂̃̄̅̆̇̈ has a lot of diacritics to exceed the size of schar_T end end up in the glyph cache
+    api.nvim_buf_set_extmark(0, ns, 0, 0, { end_col = 0, end_row = 2, conceal = 'x̀́̂̃̄̅̆̇̈' })
     command('set conceallevel=2')
     screen:expect([[
-      {26:ẍ̲}                                                 |
+      {26:x̀́̂̃̄̅̆̇̈}                                                 |
       ^                                                  |
       {1:~                                                 }|*2
                                                         |

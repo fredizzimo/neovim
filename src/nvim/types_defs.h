@@ -9,10 +9,10 @@ typedef void *vim_acl_T;
 
 // if data[0] is 0xFF, then data[1..4] is a 24-bit index (in machine endianness)
 // otherwise it must be a UTF-8 string of length maximum 4 (no NUL when n=4)
-typedef uint32_t schar_T;
+typedef uint64_t schar_T;
 typedef int32_t sattr_T;
 // must be at least as big as the biggest of schar_T, sattr_T, colnr_T
-typedef int32_t sscratch_T;
+typedef int64_t sscratch_T;
 
 // Includes final NUL. MAX_MCO is no longer used, but at least 4*(MAX_MCO+1)+1=29
 // ensures we can fit all composed chars which did fit before.
