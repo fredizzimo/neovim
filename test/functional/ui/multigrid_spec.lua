@@ -60,6 +60,45 @@ describe('ext_multigrid', function()
     }
   end)
 
+  it('complex emoji', function()
+    insert('👩🏻‍❤️‍💋‍👩🏻')
+    screen:redraw_debug()
+    screen:expect({
+      grid = [[
+      ## grid 1
+        [2:-----------------------------------------------------]|*12
+        {11:[No Name] [+]                                        }|
+        [3:-----------------------------------------------------]|
+      ## grid 2
+        ^👩🏻‍❤️‍💋‍👩🏻                                                   |
+        {1:~                                                    }|*11
+      ## grid 3
+                                                             |
+      ]],
+      win_pos = {
+      [2] = {
+        height = 12,
+        startcol = 0,
+        startrow = 0,
+        width = 53,
+        win = 1000
+      }
+    },
+      win_viewport = {
+      [2] = {win = 1000, topline = 0, botline = 2, curline = 0, curcol = 0, linecount = 1, sum_scroll_delta = 0};
+    },
+      win_viewport_margins = {
+      [2] = {
+        bottom = 0,
+        left = 0,
+        right = 0,
+        top = 0,
+        win = 1000
+      }
+    },
+    })
+  end)
+
   it('positions windows correctly', function()
     command('vsplit')
     screen:expect {
